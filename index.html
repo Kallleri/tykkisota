@@ -45,6 +45,8 @@ input[type=range]{flex:1;min-width:0;height:36px;accent-color:var(--accent)}
 .card{width:min(520px,calc(100% - 20px));max-height:calc(100% - 16px);overflow:auto;background:var(--panel);
   border:1px solid var(--line);border-radius:14px;padding:16px}
 .card h1{margin:0 0 2px;font:700 28px var(--f-display);color:var(--accent);letter-spacing:.04em}
+.cover{text-align:center}.hsname{display:flex;align-items:center;justify-content:center;gap:12px;font:700 28px var(--f-display);margin:14px 0}.hsdot{width:26px;height:26px;border-radius:7px;display:inline-block;border:2px solid rgba(255,255,255,.5)}
+.tut{min-height:230px}.tut h2{margin-bottom:10px}.tut p{font-size:15px;line-height:1.45}.dots{display:flex;gap:6px;justify-content:center;margin:12px 0 4px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:.4}.dots i.on{opacity:1;background:var(--accent)}.tbtns{display:flex;gap:8px}.tbtns .go{flex:1}
 .card h2{margin:0 0 8px;font:700 20px var(--f-display)}
 .card p{margin:0 0 12px;color:var(--muted);line-height:1.45}
 .slot{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -97,6 +99,7 @@ tr.sub td{color:var(--muted);font-size:12px;padding-top:0}
 }
 [hidden]{display:none!important}
 .langs{margin:0 0 10px}
+.teamhead{font:700 14px var(--f-display);letter-spacing:.06em;margin:12px 0 6px}
 input[type=text]{flex:1;min-width:0;min-height:40px;border-radius:8px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);padding:0 10px;font:600 14px var(--f-body);-webkit-user-select:text;user-select:text}
 input[type=text]::placeholder{color:var(--muted);font-weight:400}
 input[type=text]:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
@@ -154,7 +157,25 @@ function drawLeaders(n,avoid){
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
   return pool.slice(0,n);
 }
-const COLORS=['#ff6b6b','#4dabf7','#ffd43b','#69db7c','#ff9f43','#cc5de8','#38d9a9','#f783ac'];
+/* Tekoälyn persoonallisuus sidotaan johtajan nimeen */
+const PERS_IDS=['aggr','def','snip','trick','aven','tyc','bers','tact'];
+const LEADER_P={Napoleon:'aggr',Caesar:'tact',Aleksanteri:'aggr',Hannibal:'trick',Attila:'bers',Tšingis:'bers',Leonidas:'def',Kleopatra:'tyc',Kyyros:'tact',
+ Mannerheim:'snip',Kekkonen:'trick',Paasikivi:'def',Churchill:'aven',Bismarck:'tact',Washington:'snip',Lincoln:'def',Wellington:'def',Nelson:'aggr',Saladin:'snip',
+ Boudicca:'aven',Katariina:'tyc',Elisabet:'tact',Pietari:'tyc','Kaarle XII':'bers','Kustaa Aadolf':'aggr',Eisenhower:'tact','De Gaulle':'aven',Suvorov:'aggr',
+ Kutuzov:'def',Scipio:'aven','Kaarle Suuri':'tyc','Fredrik Suuri':'tact',Sulaiman:'tyc',Montezuma:'aven',Shaka:'bers',Johanna:'aven',Ramses:'tyc',Rurik:'trick',
+ 'Ludvig XIV':'tyc',Wallenstein:'trick',Marlborough:'snip','Kustaa Vaasa':'def'};
+function persOf(key){
+  if(LEADER_P[key])return LEADER_P[key];
+  let h=0;for(const c of String(key))h=(h*31+c.charCodeAt(0))>>>0;
+  return PERS_IDS[h%PERS_IDS.length];
+}
+function leaderKey(disp){
+  const d=String(disp).toLowerCase();
+  for(const l of LEADERS){for(const code of ['fi','sv','en']){const n=(code==='fi'?l:((LEADER_TR[code]||{})[l]||l));if(n.toLowerCase()===d)return l;}}
+  return disp;
+}
+/* Okabe–Ito -paletti: erottuu punavihersokeille */
+const COLORS=['#E69F00','#56B4E9','#CC79A7','#F0E442','#00B386','#E8E8E8','#D55E00','#4C8DFF'];
 
 /* ====== Aseet ====== */
 const WP=[
@@ -378,8 +399,22 @@ I18N.fi={
  b_next_player:"VALMIS · SEURAAVA PELAAJA",b_start_round:"ALOITA KIERROS",
  setup_intro:"Vuoropohjainen tykistöpeli. Säädä kulma ja voima, huomioi tuuli ja tuhoa vastustajat. Voit pelata useammalla ihmisellä samalla laitteella.",
  slot_player:"Pelaaja {0}",opt_none:"Ei pelaajaa",opt_human:"Ihminen",opt_cpu:"Tietokone: {0}",slot_name:"Nimi",ph_player:"Pelaaja {0}",
- slot_rounds:"Kierroksia",slot_walls:"Seinät",wall0:"Ei seiniä (ammus katoaa)",wall1:"Kimpoavat",wall2:"Kiertävät ympäri",slot_lang:"Kieli",
+ slot_rounds:"Kierroksia",slot_walls:"Seinät",wall0:"Ei seiniä (ammus katoaa)",wall1:"Kimpoavat",wall2:"Kiertävät ympäri",slot_lang:"Kieli",slot_mode:"Pelimuoto",mode_ffa:"Kaikki vastaan kaikki",team1:"Sininen joukkue",team2:"Oranssi joukkue",err_team:"Kummassakin joukkueessa pitää olla vähintään yksi pelaaja.",fin_tie:"Tasapeli",
  err_min2:"Valitse vähintään kaksi pelaajaa.",b_start:"ALOITA PELI",b_resume:"JATKA PELIÄ (kierros {0}/{1})",
+ fx_lightning:"Salama!",slot_weather:"Sää",wx0:"Satunnainen",wx1:"Aurinko",wx2:"Ukkonen",wx3:"Lumipyry",slot_hot:"Hot seat -suojaruudut",on:"Päällä",off:"Pois",
+ hs_title:"Anna laite eteenpäin",hs_shop:"Seuraavaksi ostoksille. Muut: älä katso!",hs_turn:"Seuraavaksi sinun vuorosi.",hs_ready:"OLEN VALMIS",
+ b_guide:"OPAS",tut_prev:"TAKAISIN",tut_next:"SEURAAVA",tut_done:"ALOITA",
+ tut_t1:"Tähtää ja ammu",tut_b1:"Vedä sormella tankin ympärillä tai käytä kulma-/voima-liukuja. Paina TULITA. Ammus lentää parabelia, joten tähtää hieman korkeammalle kuin luulet.",
+ tut_t2:"Voima ja kuntopisteet",tut_b2:"Suurin mahdollinen ampumavoima on yhtä suuri kuin tankin jäljellä oleva kunto (HP). Mitä enemmän vaurioita, sitä lyhyemmälle ammut. Korjauspakkaus palauttaa kuntoa.",
+ tut_t3:"Tuuli ja sää",tut_b3:"Tuulen nuoli ja luku kertovat, kuinka paljon ammus ajautuu sivulle. Aurinko: tyyni. Ukkonen: puuskainen tuuli ja salamat iskevät ammuksen lennon aikana. Lumipyry: kova tuuli.",
+ tut_t4:"Rahat ja kauppa",tut_b4:"Vaurion tekeminen ja vihollisen tuhoaminen tuottaa rahaa. Kierrosten välillä ostat aseita ja varusteita kaupasta; välilehdet jakavat valikoiman ryhmiin.",
+ tut_t5:"Suojat",tut_b5:"Kilpi imee vaurioita ja heikkenee ajan myötä. Magneettisuoja taivuttaa lähestyviä ammuksia sivuun, mutta katoaa yhdestä osumasta. Laskuvarjo pehmentää putoamista.",
+ tut_t6:"Joukkueet ja vastustajat",tut_b6:"Pelaa joukkueissa 1v1, 2v2 tai 3v3: omiin osumalla ei ansaitse rahaa. Kierros päättyy, kun toinen joukkue on tuhottu. Jokaisella tietokonejohtajalla on oma persoonallisuutensa. Hot seatissa laite kiertää pelaajalta toiselle.",
+ brief_title:"Vastustajat",
+ pers_aggr:"Hyökkääjä",pd_aggr:"Valitsee tehokkaat aseet ja iskee heikoimpaan.",pers_def:"Puolustaja",pd_def:"Käyttää suojia ja magneettia, ostaa niitä.",
+ pers_snip:"Tarkka-ampuja",pd_snip:"Tähtää erittäin tarkasti, säästää rahaa.",pers_trick:"Veijari",pd_trick:"Rakastaa erikoisaseita ja arvaamattomia siirtoja.",
+ pers_aven:"Kostaja",pd_aven:"Kohdistaa tulensa viimeksi itseensä osuneeseen.",pers_tyc:"Rahamies",pd_tyc:"Ostaa kalleinta ja jahtaa rikkainta vastustajaa.",
+ pers_bers:"Raivohirmu",pd_bers:"Ampuu aina suurimmalla, ei suojaudu, mutta tähtää huolimattomasti.",pers_tact:"Taktikko",pd_tact:"Tasapainoinen, käyttää laseria kun näköyhteys on.",
  pause_title:"Tauko",b_continue:"JATKA",b_newgame:"UUSI PELI",
  re_win:"Kierros {0}/{1}: {2} voitti",re_tie:"Kierros {0}/{1}: tasapeli",
  re_info:"Jokainen saa {0} palkkion, jäljessä olevat lisää (enintään {1}) ja voittaja {2}. Jokaisesta tuhotusta vihollisesta saa {3} ja vahingosta rahaa.",
@@ -453,8 +488,22 @@ I18N.sv={
  b_next_player:"KLAR · NÄSTA SPELARE",b_start_round:"STARTA RUNDAN",
  setup_intro:"Turbaserat artillerispel. Ställ in vinkel och kraft, ta hänsyn till vinden och förstör motståndarna. Flera människor kan spela på samma enhet.",
  slot_player:"Spelare {0}",opt_none:"Ingen spelare",opt_human:"Människa",opt_cpu:"Dator: {0}",slot_name:"Namn",ph_player:"Spelare {0}",
- slot_rounds:"Rundor",slot_walls:"Väggar",wall0:"Inga väggar (skottet försvinner)",wall1:"Studsande",wall2:"Runt om",slot_lang:"Språk",
+ slot_rounds:"Rundor",slot_walls:"Väggar",wall0:"Inga väggar (skottet försvinner)",wall1:"Studsande",wall2:"Runt om",slot_lang:"Språk",slot_mode:"Spelläge",mode_ffa:"Alla mot alla",team1:"Blått lag",team2:"Orange lag",err_team:"Båda lagen måste ha minst en spelare.",fin_tie:"Oavgjort",
  err_min2:"Välj minst två spelare.",b_start:"STARTA SPELET",b_resume:"FORTSÄTT SPELET (runda {0}/{1})",
+ fx_lightning:"Blixt!",slot_weather:"Väder",wx0:"Slumpmässigt",wx1:"Sol",wx2:"Åska",wx3:"Snöstorm",slot_hot:"Hot seat-skyddsskärm",on:"På",off:"Av",
+ hs_title:"Räck över enheten",hs_shop:"Nu är det dags att handla. Övriga: titta inte!",hs_turn:"Nu är det din tur.",hs_ready:"JAG ÄR REDO",
+ b_guide:"GUIDE",tut_prev:"TILLBAKA",tut_next:"NÄSTA",tut_done:"STARTA",
+ tut_t1:"Sikta och skjut",tut_b1:"Dra med fingret runt tanken eller använd vinkel- och kraftreglagen. Tryck ELD. Skottet flyger i en båge, så sikta lite högre än du tror.",
+ tut_t2:"Kraft och livspoäng",tut_b2:"Högsta möjliga skottkraft är lika stor som tankens återstående hälsa (HP). Ju mer skada, desto kortare skjuter du. Reparationssats ger tillbaka hälsa.",
+ tut_t3:"Vind och väder",tut_b3:"Vindpilen och talet visar hur mycket skottet driver åt sidan. Sol: lugnt. Åska: byig vind och blixtar slår ned medan skottet flyger. Snöstorm: hård vind.",
+ tut_t4:"Pengar och butik",tut_b4:"Du tjänar pengar på skada och på att slå ut fiender. Mellan rundorna köper du vapen och utrustning; flikarna delar upp sortimentet.",
+ tut_t5:"Skydd",tut_b5:"Skölden tar upp skada och försvagas med tiden. Magnetskölden böjer av inkommande skott men försvinner vid första träffen. Fallskärmen mjukar upp fall.",
+ tut_t6:"Lag och motståndare",tut_b6:"Spela i lag 1v1, 2v2 eller 3v3: träffar på det egna laget ger inga pengar. Rundan slutar när det ena laget är utslaget. Varje datorledare har sin egen personlighet. I hot seat går enheten runt mellan spelarna.",
+ brief_title:"Motståndare",
+ pers_aggr:"Anfallare",pd_aggr:"Väljer kraftfulla vapen och slår mot den svagaste.",pers_def:"Försvarare",pd_def:"Använder och köper skydd och magnet.",
+ pers_snip:"Prickskytt",pd_snip:"Siktar mycket exakt och sparar pengar.",pers_trick:"Skojare",pd_trick:"Älskar specialvapen och oväntade drag.",
+ pers_aven:"Hämnare",pd_aven:"Riktar elden mot den som senast träffade honom.",pers_tyc:"Penningmagnat",pd_tyc:"Köper det dyraste och jagar den rikaste motståndaren.",
+ pers_bers:"Bärsärk",pd_bers:"Skjuter alltid med det största, skyddar sig inte men siktar slarvigt.",pers_tact:"Taktiker",pd_tact:"Balanserad, använder laser när sikten är fri.",
  pause_title:"Paus",b_continue:"FORTSÄTT",b_newgame:"NYTT SPEL",
  re_win:"Runda {0}/{1}: {2} vann",re_tie:"Runda {0}/{1}: oavgjort",
  re_info:"Alla får {0} i belöning, de som ligger efter får mer (högst {1}) och vinnaren {2}. För varje förstörd fiende får du {3}, och pengar för skada.",
@@ -528,8 +577,22 @@ I18N.en={
  b_next_player:"DONE · NEXT PLAYER",b_start_round:"START ROUND",
  setup_intro:"A turn-based artillery game. Set angle and power, mind the wind and destroy your opponents. Several humans can play on the same device.",
  slot_player:"Player {0}",opt_none:"No player",opt_human:"Human",opt_cpu:"Computer: {0}",slot_name:"Name",ph_player:"Player {0}",
- slot_rounds:"Rounds",slot_walls:"Walls",wall0:"No walls (shot vanishes)",wall1:"Bouncing",wall2:"Wrap around",slot_lang:"Language",
+ slot_rounds:"Rounds",slot_walls:"Walls",wall0:"No walls (shot vanishes)",wall1:"Bouncing",wall2:"Wrap around",slot_lang:"Language",slot_mode:"Game mode",mode_ffa:"Free for all",team1:"Blue team",team2:"Orange team",err_team:"Both teams need at least one player.",fin_tie:"Draw",
  err_min2:"Choose at least two players.",b_start:"START GAME",b_resume:"RESUME GAME (round {0}/{1})",
+ fx_lightning:"Lightning!",slot_weather:"Weather",wx0:"Random",wx1:"Sunshine",wx2:"Thunderstorm",wx3:"Snowstorm",slot_hot:"Hot seat cover screens",on:"On",off:"Off",
+ hs_title:"Pass the device",hs_shop:"Shopping time next. Everyone else: no peeking!",hs_turn:"It is your turn next.",hs_ready:"I'M READY",
+ b_guide:"GUIDE",tut_prev:"BACK",tut_next:"NEXT",tut_done:"START",
+ tut_t1:"Aim and fire",tut_b1:"Drag with your finger around the tank or use the angle and power sliders. Press FIRE. Shots fly in an arc, so aim a little higher than you think.",
+ tut_t2:"Power and hit points",tut_b2:"Your maximum shot power equals your tank's remaining health (HP). The more damage you take, the shorter you shoot. A repair kit restores health.",
+ tut_t3:"Wind and weather",tut_b3:"The wind arrow and number show how far a shot drifts sideways. Sunshine: calm. Thunderstorm: gusty wind and lightning that strikes while a shot is in the air. Snowstorm: strong wind.",
+ tut_t4:"Money and shop",tut_b4:"Dealing damage and destroying enemies earns money. Between rounds you buy weapons and gear; the tabs split the stock into groups.",
+ tut_t5:"Defences",tut_b5:"A shield soaks up damage and weakens over time. The magnet shield bends incoming shots aside but vanishes after one hit. The parachute softens falls.",
+ tut_t6:"Teams and opponents",tut_b6:"Play teams 1v1, 2v2 or 3v3: hitting your own team earns no money. The round ends when one team is wiped out. Every computer leader has its own personality. In hot seat the device is passed between players.",
+ brief_title:"Opponents",
+ pers_aggr:"Aggressor",pd_aggr:"Picks powerful weapons and hits the weakest.",pers_def:"Defender",pd_def:"Uses and buys shields and magnets.",
+ pers_snip:"Sniper",pd_snip:"Aims very precisely and saves money.",pers_trick:"Trickster",pd_trick:"Loves special weapons and unpredictable moves.",
+ pers_aven:"Avenger",pd_aven:"Targets whoever hit him last.",pers_tyc:"Tycoon",pd_tyc:"Buys the priciest gear and hunts the richest opponent.",
+ pers_bers:"Berserker",pd_bers:"Always fires the biggest, skips shields, aims carelessly.",pers_tact:"Tactician",pd_tact:"Balanced, uses the laser when there is a clear line.",
  pause_title:"Paused",b_continue:"RESUME",b_newgame:"NEW GAME",
  re_win:"Round {0}/{1}: {2} won",re_tie:"Round {0}/{1}: draw",
  re_info:"Everyone gets a {0} bonus, trailing players get more (up to {1}) and the winner gets {2}. You earn {3} for each enemy destroyed, plus money for damage.",
@@ -570,15 +633,15 @@ const LEADER_TR={
 
 /* ====== Pelitila ====== */
 const KILL_BONUS=4000;
-let wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
+let teamMode=0,wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
 let projs=[],rolls=[],burrows=[],fires=[],blasts=[],parts=[],texts=[],trails=[],pending=[];
-const cfg={slots:[0,3,-1,-1,-1,-1,-1,-1],rounds:5,walls:0,cam:1,names:['','','','','','','','']};
+const cfg={slots:[0,3,-1,-1,-1,-1,-1,-1],rounds:5,walls:0,cam:1,names:['','','','','','','',''],mode:0,tslots:[[0,3,3],[3,3,3]],tnames:[['','',''],['','','']]};
 try{const s=JSON.parse(localStorage.getItem('tsota2')||'null');if(s&&s.slots&&s.slots.length>=4)Object.assign(cfg,s);}catch(e){}
 while(cfg.slots.length<8)cfg.slots.push(-1);while(cfg.names.length<8)cfg.names.push('');
 function saveCfg(){try{localStorage.setItem('tsota2',JSON.stringify(cfg));}catch(e){}}
 
 function makeTank(i,lvl,name){
-  return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',shield:0,mag:0,shAge:null,magAge:null,
+  return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',team:-1,pers:null,leader:'',hitBy:null,shield:0,mag:0,shAge:null,magAge:null,
     alive:true,wins:0,money:12000,fall:0,vy:0,acc:0,kills:0,mem:null,dHp:100,flash:0,last:null,lastImp:null,earn:{dmg:0,kills:0,nk:0,bonus:0}};
 }
 function tankPos(t){return {x:t.x,y:t.y-9};}
@@ -663,6 +726,7 @@ function stepAir(t,dt){
 }
 
 /* ====== Vahinko ja räjähdykset ====== */
+const sameTeam=(a,b)=>a&&b&&a.team>=0&&a.team===b.team;
 function applyDamage(t,amt,src,quiet){
   if(!t.alive||amt<=0)return 0;
   if(t.mag>0&&src){t.mag=0;t.magAge=null;floatText(t.x,t.y-34,T('fx_magnet_down'),'#e599f7');}
@@ -670,12 +734,12 @@ function applyDamage(t,amt,src,quiet){
     if(t.shield<=0){floatText(t.x,t.y-26,T('fx_shield_down'),'#7fe3f0');}}
   if(amt<=0)return 0;
   const dealt=Math.min(t.hp,amt);t.hp-=amt;
-  if(src&&src!==t){src.money+=dealt*6;src.earn.dmg+=dealt*6;}
+  if(src&&src!==t&&!sameTeam(src,t)){t.hitBy=src.i;src.money+=dealt*6;src.earn.dmg+=dealt*6;}
   if(quiet){t.acc+=amt;if(t.acc>=6){floatText(t.x+rnd(-8,8),t.y-26,'-'+Math.round(t.acc),'#ffb36b');t.acc=0;}}
   else floatText(t.x,t.y-26,'-'+Math.round(amt),'#ff6b6b');
   if(t.hp<=0&&t.alive){
     t.hp=0;t.alive=false;
-    if(src&&src!==t){src.money+=KILL_BONUS;src.kills++;src.earn.kills+=KILL_BONUS;src.earn.nk++;floatText(src.x,src.y-42,'+'+money(KILL_BONUS)+' '+T('fx_kill'),'#ffd27a');}
+    if(src&&src!==t&&!sameTeam(src,t)){src.money+=KILL_BONUS;src.kills++;src.earn.kills+=KILL_BONUS;src.earn.nk++;floatText(src.x,src.y-42,'+'+money(KILL_BONUS)+' '+T('fx_kill'),'#ffd27a');}
     startDeath(t);
   }
   return dealt;
@@ -901,6 +965,63 @@ function shade(hex,k){
   return 'rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+')';
 }
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* Kahdeksan erimuotoista tankkia: muoto auttaa erottamaan pelaajat myös värisokeana. Kaikissa piippu lähtee pisteestä (0,-9). */
+function tankBody(st,col){
+  const g=ctx.createLinearGradient(0,-12,0,-5);g.addColorStop(0,shade(col,.3));g.addColorStop(1,shade(col,-.35));
+  const g2=ctx.createRadialGradient(-1.5,-13,.5,0,-10.5,6);g2.addColorStop(0,shade(col,.55));g2.addColorStop(1,shade(col,-.3));
+  const line='rgba(0,0,0,.4)';
+  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,1,13,2.2,0,0,6.283);ctx.fill();
+  const tracks=(w,h)=>{ctx.fillStyle='#14161a';rr(-w,-h,w*2,h,h/2);ctx.fill();ctx.fillStyle='#3d424c';for(let i=-w+4;i<=w-4;i+=5.3){ctx.beginPath();ctx.arc(i,-h/2,h/3.2,0,6.283);ctx.fill();}};
+  ctx.strokeStyle=line;ctx.lineWidth=.7;
+  switch(st){
+  case 1:{ // kiila: matala, viisto etuosa
+    tracks(12,5.6);ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-11,-5);ctx.lineTo(12,-5);ctx.lineTo(4,-10.5);ctx.lineTo(-9,-10.5);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;ctx.beginPath();ctx.moveTo(-6,-10.5);ctx.lineTo(-4,-13.6);ctx.lineTo(4,-13.6);ctx.lineTo(6,-10.5);ctx.closePath();ctx.fill();ctx.stroke();break;}
+  case 2:{ // kupu: pyöreä
+    tracks(11,5);ctx.fillStyle=g;rr(-9,-9,18,4.4,2);ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;ctx.beginPath();ctx.arc(0,-9,7.2,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();break;}
+  case 3:{ // laatikko: korkea tornilaatikko
+    tracks(12,5.6);ctx.fillStyle=g;rr(-10.5,-10,21,5,1);ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;rr(-6.5,-15,13,6.2,1.4);ctx.fill();ctx.stroke();break;}
+  case 4:{ // pyörätankki: kolme isoa pyörää
+    ctx.fillStyle='#14161a';for(const x of[-8,0,8]){ctx.beginPath();ctx.arc(x,-3.6,3.9,0,6.283);ctx.fill();}
+    ctx.fillStyle='#3d424c';for(const x of[-8,0,8]){ctx.beginPath();ctx.arc(x,-3.6,1.5,0,6.283);ctx.fill();}
+    ctx.fillStyle=g;rr(-11,-9.5,22,4.8,2.4);ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;ctx.beginPath();ctx.moveTo(-4.5,-9.5);ctx.lineTo(-3,-13.6);ctx.lineTo(3,-13.6);ctx.lineTo(4.5,-9.5);ctx.closePath();ctx.fill();ctx.stroke();break;}
+  case 5:{ // lautanen: leijuva
+    ctx.fillStyle='rgba(120,220,255,.25)';ctx.beginPath();ctx.ellipse(0,-1.2,8,1.6,0,0,6.283);ctx.fill();
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,-6.4,12.5,3.6,0,0,6.283);ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;ctx.beginPath();ctx.ellipse(0,-9.6,5,3.8,0,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#14161a';ctx.fillRect(-1.2,-4.4,2.4,2.6);break;}
+  case 6:{ // pyramidi: kolmiotorni
+    tracks(12,5.6);ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-10,-5);ctx.lineTo(10,-5);ctx.lineTo(6,-9.5);ctx.lineTo(-6,-9.5);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;ctx.beginPath();ctx.moveTo(-7,-9.5);ctx.lineTo(0,-16);ctx.lineTo(7,-9.5);ctx.closePath();ctx.fill();ctx.stroke();break;}
+  case 7:{ // raskas: leveä, helmat ja kaksi luukkua
+    tracks(13,6.4);ctx.fillStyle=g;rr(-12.4,-11,24.8,5.2,1.6);ctx.fill();ctx.stroke();
+    ctx.fillStyle=shade(col,-.45);ctx.fillRect(-12,-8,24,1.2);
+    ctx.fillStyle=g2;rr(-5.5,-14,11,4.2,2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#14161a';ctx.beginPath();ctx.arc(-8,-11.4,1.1,0,6.283);ctx.arc(8,-11.4,1.1,0,6.283);ctx.fill();break;}
+  default:{ // klassinen
+    tracks(12,5.6);ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-10,-5);ctx.lineTo(10,-5);ctx.lineTo(7.5,-10.5);ctx.lineTo(-7.5,-10.5);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle=g2;ctx.beginPath();ctx.arc(0,-10.5,5,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();}
+  }
+}
+const TEAM_COL=['#56B4E9','#E69F00'];
+/* Joukkueen merkki: kolmio (joukkue 1) tai neliö (joukkue 2) – muoto erottuu myös ilman väriä */
+function teamMark(x,y,k,r){
+  ctx.fillStyle=TEAM_COL[k];ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=.8;ctx.beginPath();
+  if(k===0){ctx.moveTo(x,y-r);ctx.lineTo(x+r,y+r*.8);ctx.lineTo(x-r,y+r*.8);ctx.closePath();}
+  else ctx.rect(x-r*.85,y-r*.85,r*1.7,r*1.7);
+  ctx.fill();ctx.stroke();
+}
+function teamFlag(x,y,k,sc){
+  ctx.strokeStyle='rgba(20,22,28,.9)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y-9*sc);ctx.stroke();
+  teamMark(x+4*sc,y-9*sc,k,3.4*sc);
+}
+function tankIcon(st,col,cx,cy,sc){
+  ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);tankBody(st,col);ctx.restore();
+}
 function drawTank(t){
   const gy=t.y;
   const rot=t.alive?0:(t.rot||0);
@@ -919,20 +1040,12 @@ function drawTank(t){
     ctx.beginPath();ctx.moveTo(px,py-.9);ctx.lineTo(px+Math.cos(a)*15,py-.9-Math.sin(a)*15);ctx.stroke();
   }
   ctx.save();ctx.translate(t.x,gy);ctx.rotate(tilt);
-  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,1,13,2.2,0,0,6.283);ctx.fill();
-  ctx.fillStyle='#14161a';rr(-12,-5.6,24,5.6,2.8);ctx.fill();
-  ctx.fillStyle='#3d424c';
-  for(let i=-8;i<=8;i+=5.3){ctx.beginPath();ctx.arc(i,-2.8,1.9,0,6.283);ctx.fill();}
-  const g=ctx.createLinearGradient(0,-12,0,-5);g.addColorStop(0,shade(col,.3));g.addColorStop(1,shade(col,-.35));
-  ctx.fillStyle=g;
-  ctx.beginPath();ctx.moveTo(-10,-5);ctx.lineTo(10,-5);ctx.lineTo(7.5,-10.5);ctx.lineTo(-7.5,-10.5);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=.7;ctx.stroke();
-  const g2=ctx.createRadialGradient(-1.5,-13,.5,0,-10.5,6);g2.addColorStop(0,shade(col,.55));g2.addColorStop(1,shade(col,-.3));
-  ctx.fillStyle=g2;ctx.beginPath();ctx.arc(0,-10.5,5,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();
+  tankBody(t.i%8,col);
   if(t.flash>0){ctx.fillStyle='rgba(255,255,255,'+Math.min(.7,t.flash*3)+')';ctx.fillRect(-11,-14,22,14);}
   ctx.restore();
   if(rot)ctx.restore();
   if(!t.alive)return;
+  if(t.team>=0)teamFlag(t.x,t.y-24,t.team,.9);
   if((t.inv.parachute||0)>0&&t.fall>2&&t.vy>10){
     ctx.fillStyle='rgba(255,224,102,.92)';ctx.strokeStyle='#8a6d00';ctx.lineWidth=.8;
     ctx.beginPath();ctx.arc(t.x,t.y-30,13,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();
@@ -1000,23 +1113,24 @@ function drawHud(){
     ctx.fillStyle=(i===cur&&(phase==='fly'||phase==='aim'))&&t.alive?'rgba(10,14,22,.82)':'rgba(10,14,22,.6)';
     rr(x,y,cw,h,8);ctx.fill();
     if(i===cur&&t.alive&&(phase==='aim'||phase==='fly')){ctx.strokeStyle=t.col;ctx.lineWidth=2;ctx.stroke();}
-    ctx.fillStyle=t.alive?t.col:'#666';ctx.beginPath();ctx.arc(x+14,y+13,6,0,6.283);ctx.fill();
+    tankIcon(t.i%8,t.alive?t.col:'#666',x+17,y+20,1.15);
+    if(t.team>=0){ctx.fillStyle=TEAM_COL[t.team];ctx.fillRect(x,y+6,3,h-12);teamMark(x+cw-52,y+13,t.team,5);}
     ctx.fillStyle=t.alive?'#fff':'#888';ctx.textAlign='left';
-    fitFont(t.name,cw-68,17,700,'"Chakra Petch",system-ui,sans-serif');
-    ctx.fillText(t.name,x+26,y+13);
+    fitFont(t.name,cw-76-(t.team>=0?16:0),17,700,'"Chakra Petch",system-ui,sans-serif');
+    ctx.fillText(t.name,x+34,y+13);
     ctx.textAlign='right';ctx.font='700 15px "Chakra Petch",system-ui,sans-serif';
     ctx.fillStyle='#ffd27a';ctx.fillText(t.wins+'★',x+cw-8,y+13);
     const bw=cw-16;
     ctx.fillStyle='rgba(255,255,255,.14)';rr(x+8,y+27,bw,7,3.5);ctx.fill();
     const k=clamp(t.dHp/100,0,1);
-    if(k>0){ctx.fillStyle=k>.5?'#58d68d':k>.25?'#ffc247':'#ff5252';rr(x+8,y+27,Math.max(5,bw*k),7,3.5);ctx.fill();}
+    if(k>0){ctx.fillStyle=k>.5?'#56B4E9':k>.25?'#F0E442':'#D55E00';rr(x+8,y+27,Math.max(5,bw*k),7,3.5);ctx.fill();}
     if(t.shield>0){ctx.strokeStyle='#7fe3f0';ctx.lineWidth=1.6;rr(x+8,y+27,Math.max(5,bw*clamp(t.shield/100,0,1)),7,3.5);ctx.stroke();}
   }
   const wy=4+rows*44+10,ww=Math.abs(wind);
   ctx.textAlign='center';
   ctx.fillStyle='rgba(10,14,22,.6)';rr(W/2-70,wy-13,140,26,13);ctx.fill();
   ctx.fillStyle='#e9eef7';ctx.font='600 16px Inter,system-ui,sans-serif';
-  ctx.fillText(T('wind')+' '+Math.round(ww),W/2+14,wy+1);
+  ctx.fillText((WX_ICON[wx]||'')+' '+T('wind')+' '+Math.round(ww),W/2+14,wy+1);
   const dir=wind>=0?1:-1,len=clamp(ww/70*34,3,34);
   ctx.strokeStyle='#ffd27a';ctx.fillStyle='#ffd27a';ctx.lineWidth=3;ctx.lineCap='round';
   const ax=W/2-40;
@@ -1187,9 +1301,90 @@ function draw(){
   }
   for(const p of projs)drawProj(p);
   drawFx();
+  drawWeather();
   drawSay();
   ctx.restore();
   if(tanks.length)drawHud();
+}
+
+/* ====== Sää: aurinko, ukkonen, lumipyry ====== */
+const WX_IDS=['sun','thunder','snow'],WX_ICON={sun:'☀',thunder:'⛈',snow:'❄'};
+let wx='sun',wxP=[],wxFlash=0,wxBolt=null,wxBoltAt=null,wxFar=0;
+function wxWindK(){return wx==='sun'?.6:wx==='thunder'?1.5:1.3;}
+function wxWindMax(){return wx==='sun'?45:wx==='thunder'?90:75;}
+function setWeather(){
+  const c=(cfg.weather|0);
+  wx=c>0?WX_IDS[c-1]:pick(WX_IDS);
+  wxP=[];wxFlash=0;wxBolt=null;wxBoltAt=null;wxFar=rnd(3,8);
+  const n=Math.round((wx==='thunder'?170:wx==='snow'?120:0)*(W*H)/(800*450)*.8);
+  for(let i=0;i<n;i++)wxP.push({x:Math.random()*W,y:Math.random()*H,z:.5+Math.random()*.8,ph:Math.random()*6.3});
+}
+function wxTurn(){ // kutsutaan vuoron alussa: ukkonen voi iskeä ammuksen lennon aikana
+  wxBoltAt=(wx==='thunder'&&Math.random()<.55)?rnd(.9,3.2):null;
+}
+function sndThunder(){
+  if(muted||!AC)return;
+  try{
+    const t=AC.currentTime,dur=1.4,src=AC.createBufferSource();src.buffer=noiseBuf;
+    const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(420,t);f.frequency.exponentialRampToValueAtTime(40,t+dur);
+    const g=AC.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.7,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    src.connect(f);f.connect(g);g.connect(AC.destination);src.start(t,Math.random()*.4,dur);
+  }catch(e){}
+}
+function wxStrike(){
+  const alive=tanks.filter(t=>t.alive);
+  let x=rnd(W*.08,W*.92);
+  if(alive.length&&Math.random()<.5){const t=pick(alive);x=clamp(t.x+(Math.random()<.5?-1:1)*rnd(25,80),10,W-10);}
+  const y=surf(x),pts=[[x+rnd(-30,30),0]];
+  let cx=pts[0][0];for(let yy=18;yy<y;yy+=rnd(14,26)){cx+=(x-cx)*.25+rnd(-12,12);pts.push([cx,yy]);}
+  pts.push([x,y]);
+  wxBolt={pts,life:.45};wxFlash=1;
+  floatText(x,Math.max(14,y-40),T('fx_lightning'),'#cfe3ff');
+  explode(x,y-4,26,38,null,'#cfe3ff');
+  sndThunder();
+}
+function wxAnim(dt){ // joka kuva
+  if(wxFlash>0)wxFlash=Math.max(0,wxFlash-dt*2.4);
+  if(wxBolt){wxBolt.life-=dt;if(wxBolt.life<=0)wxBolt=null;}
+  if(wx==='thunder'&&!paused&&tanks.length&&phase!=='menu'){
+    wxFar-=dt;if(wxFar<0){wxFar=rnd(5,11);if(wxFlash<.1){wxFlash=.45;setTimeout(sndThunder,rint(250,700));}}
+    if(phase==='fly'&&wxBoltAt!=null){wxBoltAt-=dt;if(wxBoltAt<=0){wxBoltAt=null;wxStrike();}}
+  }
+  const sp=wx==='thunder'?1:.35;
+  for(const p of wxP){
+    if(wx==='thunder'){p.x+=(wind*.9-10)*dt*p.z;p.y+=640*dt*p.z;}
+    else if(wx==='snow'){p.ph+=dt*1.6;p.x+=(wind*1.1+Math.sin(p.ph)*14)*dt*p.z;p.y+=(34+22*p.z)*dt;}
+    if(p.y>H){p.y=-4;p.x=Math.random()*W;}
+    if(p.x>W+6)p.x-=W+12;else if(p.x<-6)p.x+=W+12;
+  }
+}
+function drawWeather(){
+  if(phase==='menu'&&!tanks.length)return;
+  if(wx==='sun'){
+    const sx=W*.88,sy=H*.3;
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    const g=ctx.createRadialGradient(sx,sy,4,sx,sy,H*.55);g.addColorStop(0,'rgba(255,220,120,.32)');g.addColorStop(1,'rgba(255,200,100,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    ctx.restore();
+    ctx.fillStyle='#fff3b0';ctx.beginPath();ctx.arc(sx,sy,15,0,6.283);ctx.fill();
+    ctx.strokeStyle='rgba(255,236,150,.55)';ctx.lineWidth=2;
+    for(let i=0;i<12;i++){const a=i*Math.PI/6+time*.15;ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*21,sy+Math.sin(a)*21);ctx.lineTo(sx+Math.cos(a)*(i%2?28:33),sy+Math.sin(a)*(i%2?28:33));ctx.stroke();}
+  }else if(wx==='thunder'){
+    ctx.fillStyle='rgba(8,12,30,.36)';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(190,210,255,.5)';ctx.lineWidth=1;ctx.beginPath();
+    for(const p of wxP){const dx=(wind*.9-10)*.028*p.z,dy=640*.028*p.z;ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+dx,p.y+dy);}
+    ctx.stroke();
+    if(wxBolt){
+      const a=clamp(wxBolt.life/.45,0,1);ctx.lineJoin='round';ctx.lineCap='round';
+      ctx.strokeStyle='rgba(170,200,255,'+a*.55+')';ctx.lineWidth=7;ctx.beginPath();wxBolt.pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke();
+      ctx.strokeStyle='rgba(255,255,255,'+a+')';ctx.lineWidth=2.2;ctx.beginPath();wxBolt.pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.stroke();
+    }
+    if(wxFlash>0){ctx.fillStyle='rgba(235,242,255,'+wxFlash*.5+')';ctx.fillRect(0,0,W,H);}
+  }else if(wx==='snow'){
+    ctx.fillStyle='rgba(225,235,248,.16)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,255,255,.9)';
+    for(const p of wxP){ctx.beginPath();ctx.arc(p.x,p.y,1+p.z*1.3,0,6.283);ctx.fill();}
+  }
 }
 
 /* ====== Tekoäly ====== */
@@ -1276,6 +1471,14 @@ function aiChooseWeapon(t,target){
   const safe=list.filter(w=>!(w.r>=55&&dist<w.r*1.7)&&!(w.k==='split'&&w.sp.s>=40&&dist<110)&&!(L>=4&&w.id==='funky'));
   const pool=safe.length?safe:[base];
   const strong=pool.slice().sort((a,b)=>wPower(b)-wPower(a));
+  const P=t.pers,r=Math.random();
+  if(P==='bers'){const all=list.slice().sort((a,b)=>wPower(b)-wPower(a));if(r<.7)return all[0]||base;}
+  else if(P==='aggr'&&r<.35)return strong[0];
+  else if(P==='tyc'&&r<.4)return strong[0];
+  else if(P==='trick'&&r<.55){const sp=pool.filter(w=>w.mv||['leap','burrow','split','fire'].includes(w.k));if(sp.length)return pick(sp);}
+  else if(P==='snip'&&r<.5){const pr=pool.filter(w=>w.k==='std'&&(w.r||0)<=55).sort((a,b)=>wPower(b)-wPower(a));if(pr.length)return pr[0];}
+  else if(P==='def'&&r<.35){const e=pool.filter(w=>wPower(w)>=(target.hp+target.shield)*1.1&&w.k!=='fire').sort((a,b)=>wPower(a)-wPower(b));if(e.length)return e[0];}
+  else if(P==='tact'&&r<.3&&los){const l=pool.find(w=>w.mv==='laser');if(l)return l;}
   if(L===3)return Math.random()<.65?strong[0]:pick(pool);
   if(L===4)return Math.random()<.85?strong[0]:pick(pool);
   const eff=(target.hp+target.shield);
@@ -1283,24 +1486,33 @@ function aiChooseWeapon(t,target){
   return enough.length?enough[0]:strong[0];
 }
 function aiChooseTarget(t){
-  const en=tanks.filter(o=>o!==t&&o.alive);
+  const en=tanks.filter(o=>o!==t&&o.alive&&!sameTeam(t,o));
   if(!en.length)return null;
   const L=t.lvl;
   if(L===1)return pick(en);
+  const P=t.pers,eff=o=>o.hp+o.shield;
+  if(P==='aven'&&t.hitBy!=null){const h=en.find(o=>o.i===t.hitBy);if(h)return h;}
+  if(P==='tyc')return en.slice().sort((x,y)=>y.money-x.money)[0];
+  if(P==='aggr')return en.slice().sort((x,y)=>eff(x)-eff(y))[0];
+  if(P==='trick'&&Math.random()<.5)return pick(en);
   const byDist=en.slice().sort((a,b)=>Math.abs(a.x-t.x)-Math.abs(b.x-t.x));
   if(L<=3)return byDist[0];
   return en.slice().sort((a,b)=>(a.hp+a.shield+Math.abs(a.x-t.x)/8)-(b.hp+b.shield+Math.abs(b.x-t.x)/8))[0];
 }
+const PM={ // melu, miettimisaika, suojatodennäköisyys, taikaesinelisä
+ aggr:{n:1,th:.85,sh:-.2},def:{n:1,th:1.1,sh:.35},snip:{n:.6,th:1.25,sh:0},trick:{n:1.1,th:1,sh:0},
+ aven:{n:1,th:1,sh:0},tyc:{n:1,th:1,sh:.1},bers:{n:1.3,th:.7,sh:-.45},tact:{n:.85,th:1.1,sh:.1}};
+const pm=t=>PM[t.pers]||{n:1,th:1,sh:0};
 let ai=null;
 function aiStart(t){
   const lv=LV[t.lvl];
   ai={stage:'think',tm:0,acts:[],goal:null};
-  let sp=lv.sh;
+  let sp=clamp(lv.sh+(t.lvl>=2?pm(t).sh:0),0,1);
   if(t.lvl>=4&&t.hp<70)sp=1;
   if(t.shield<=0&&Math.random()<sp){
     if(t.inv.heavy_shield>0)ai.acts.push('heavy_shield');else if(t.inv.shield>0)ai.acts.push('shield');
   }
-  if(t.mag<=0&&t.inv.magnet>0&&Math.random()<.4+sp*.5)ai.acts.push('magnet');
+  if(t.mag<=0&&t.inv.magnet>0&&Math.random()<.4+sp*.5+(t.pers==='def'?.3:0))ai.acts.push('magnet');
   if(t.hp<=55&&t.inv.repair>0&&t.lvl>=2)ai.acts.push('repair');
 }
 function aiPlan(t){
@@ -1316,7 +1528,8 @@ function aiPlan(t){
     s={a:Math.atan2(-(tp.y-tip.y),tp.x-tip.x)*180/Math.PI,p:cap};
   }else if(w.mv==='drone')s={a:target.x>=t.x?62:118,p:cap};
   else s=solveShot(t,tp,wnd,lv.aS,lv.pS,cap,w.k==='roll',w.mv);
-  let ang=s.a+gauss()*lv.aN,pow=s.p+gauss()*lv.pN;
+  const nm=pm(t).n;
+  let ang=s.a+gauss()*lv.aN*nm,pow=s.p+gauss()*lv.pN*nm;
   if(w.mv==='laser'||w.mv==='drone'){pow=cap;if(w.mv==='drone')ang=s.a+gauss()*lv.aN*.5;}
   if(t.lvl===1&&Math.random()<.2){ang=rnd(20,160);pow=rnd(30,100);}
   return {ang:clamp(ang,0,180),pow:clamp(pow,5,cap),w,target};
@@ -1324,7 +1537,7 @@ function aiPlan(t){
 function aiUpdate(dt){
   const t=tanks[cur];
   if(!ai||!t||!t.alive||t.lvl===0)return;
-  const lv=LV[t.lvl];
+  const lv=Object.assign({},LV[t.lvl]);lv.think*=pm(t).th;
   ai.tm+=dt;
   if(ai.stage==='think'){
     if(ai.tm<lv.think)return;
@@ -1347,7 +1560,7 @@ function aiUpdate(dt){
 }
 function aiBuy(t){
   const L=t.lvl;if(!L)return;
-  const tries=L*3;
+  const tries=Math.max(1,Math.round(L*3*(t.pers==='snip'?.6:1)));
   for(let i=0;i<tries;i++){
     const c=WP.filter(w=>!w.hid&&!w.inf&&w.price<=t.money&&(t.inv[w.id]||0)<12&&!['dirt','dig','tracer'].includes(w.k)&&(w.k!=='roll'||LV[L].roll));
     if(!c.length)break;
@@ -1356,6 +1569,12 @@ function aiBuy(t){
       let v=1;
       if(L>=3)v+=w.price/4000;
       if(L>=3&&(w.k==='shield'||w.k==='chute'||w.k==='repair'||w.k==='magnet'))v+=3;
+      if(L>=2){const P=t.pers;
+        if(P==='def'&&['shield','chute','repair','magnet'].includes(w.k))v+=4;
+        if((P==='aggr'||P==='bers')&&(w.dmg||0)>=90)v+=2.5;
+        if(P==='tyc')v+=w.price/2500;
+        if(P==='trick'&&(w.mv||['leap','burrow','split','fire'].includes(w.k)))v+=3;
+        if(P==='snip'&&w.k==='std')v+=1.5;}
       if(L<=2)v=1/(1+w.price/5000);
       wsum+=v;return v;});
     let r=Math.random()*wsum,k=0;
@@ -1504,6 +1723,13 @@ function drawPodium(){
     }
   }
 }
+function finalWinnerHtml(){
+  if(!teamMode)return '<span style="color:'+podium[0].col+'">'+esc(podium[0].name)+'</span>';
+  const sc=[0,1].map(k=>tanks.filter(t=>t.team===k).reduce((a,t)=>[a[0]+t.wins,a[1]+t.money],[0,0]));
+  if(sc[0][0]!==sc[1][0])return teamName(sc[0][0]>sc[1][0]?0:1);
+  if(sc[0][1]!==sc[1][1])return teamName(sc[0][1]>sc[1][1]?0:1);
+  return T('fin_tie');
+}
 function showFinale(){
   $('app').classList.add('fin');
   phase='finale';paused=false;speed=1;$('btnSpd').textContent='×1';
@@ -1512,7 +1738,7 @@ function showFinale(){
   fwTimer=0;finaleT=0;fwBag=[];shake=0;cam.z=1;cam.x=W/2;cam.y=H/2;camF=null;aimDrag=null;
   podium=tanks.slice().sort((a,b)=>b.wins-a.wins||b.money-a.money).slice(0,3);
   for(let i=0;i<4;i++)setTimeout(()=>{if(phase==='finale')launchFw(nextFwType());},i*250);
-  showOv('<div class="card"><h1>'+T('fin_title')+'</h1><h2>'+T('fin_winner')+': <span style="color:'+podium[0].col+'">'+esc(podium[0].name)+'</span></h2>'+tableHtml(false)+
+  showOv('<div class="card"><h1>'+T('fin_title')+'</h1><h2>'+T('fin_winner')+': '+finalWinnerHtml()+'</h2>'+tableHtml(false)+
     '<button class="go" id="again">'+T('b_newgame')+'</button></div>','finale');
   $('again').onclick=()=>{audio();backdrop();showSetup();};
 }
@@ -1630,9 +1856,14 @@ addEventListener('keydown',e=>{
 /* ====== Pelikulku ====== */
 function showOv(html,cls){ov.innerHTML=html;ov.classList.remove('hidden');ov.classList.toggle('finale',cls==='finale');lastUI='';}
 function hideOv(){ov.classList.add('hidden');ov.classList.remove('finale');lastUI='';}
+function teamName(k){return '<span style="color:'+TEAM_COL[k]+'">'+(k?'■ ':'▲ ')+T('team'+(k+1))+'</span>';}
 function layoutTanks(){
   const n=tanks.length,order=[];for(let i=0;i<n;i++)order.push(i);
   for(let i=n-1;i>0;i--){const j=rint(0,i);[order[i],order[j]]=[order[j],order[i]];}
+  if(teamMode){ // joukkueet vastakkaisille puolille, järjestys joukkueen sisällä satunnainen
+    const left=Math.random()<.5?0:1;
+    order.sort((a,b)=>((tanks[a].team===left?0:1)-(tanks[b].team===left?0:1)));
+  }
   order.forEach((ti,slot)=>{
     const t=tanks[ti],seg=W/n;
     t.x=Math.round(clamp((slot+.5)*seg+rnd(-seg*.27,seg*.27),32,W-32));
@@ -1653,6 +1884,7 @@ function fitWorld(){
   if(w!==W||h!==H||!bgCv){W=w;H=h;ground=new Float32Array(W);mask=new Uint8Array(W*H);bgCv=null;tCv=null;cv.width=W*S;cv.height=H*S;cam.x=W/2;cam.y=H/2;}
 }
 function startRound(){
+  prevCur=-1;
   fitWorld();genTerrain();th=pick(THEMES);buildSky();
   projs=[];rolls=[];burrows=[];fires=[];blasts=[];parts=[];texts=[];trails=[];pending=[];shake=0;ai=null;
   for(const t of tanks){
@@ -1661,7 +1893,8 @@ function startRound(){
   layoutTanks();commitTerrain();
   for(const t of tanks)t.y=ground[clamp(Math.round(t.x),0,W-1)];
   camF=null;cam.z=1;cam.x=W/2;cam.y=H/2;aimDrag=null;
-  wind=Math.round(rnd(-45,45));
+  setWeather();
+  wind=Math.round(rnd(-45,45)*wxWindK());
   cur=rint(0,tanks.length-1);
   hideOv();beginTurn();
 }
@@ -1679,17 +1912,20 @@ function ageDefences(t){
   }
 }
 function beginTurn(){
+  wxTurn();
   phase='aim';settle=0;lastUI='';
   const t=tanks[cur];
   ageDefences(t);
   if(t.lvl)aiStart(t);
+  if(t.lvl===0&&hotSeat()&&prevCur!==cur){prevCur=cur;coverCard(t,'turn',()=>{hideOv();syncUI();});}
+  else if(t.lvl===0)prevCur=cur;
   syncUI();
 }
 function endTurn(){
   const alive=tanks.filter(t=>t.alive);
-  if(alive.length<=1){roundEnd(alive[0]||null);return;}
+  if(teamMode?new Set(alive.map(t=>t.team)).size<=1:alive.length<=1){roundEnd(alive[0]||null);return;}
   do{cur=(cur+1)%tanks.length;}while(!tanks[cur].alive);
-  wind=Math.round(clamp(wind+rnd(-12,12),-70,70));
+  wind=Math.round(clamp(wind+rnd(-12,12)*wxWindK(),-wxWindMax(),wxWindMax()));
   beginTurn();
 }
 function earnTotal(t){return t.earn.dmg+t.earn.kills+t.earn.bonus;}
@@ -1702,7 +1938,7 @@ function earnDetail(t){
 }
 function tableHtml(withEarn){
   const list=tanks.slice().sort((a,b)=>b.wins-a.wins||b.money-a.money);
-  const dot=t=>'<i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+t.col+'"></i> ';
+  const dot=t=>'<i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+t.col+'"></i> '+(t.team>=0?'<span style="color:'+TEAM_COL[t.team]+'">'+(t.team?'■':'▲')+'</span> ':'');
   if(!withEarn){
     return '<table><tr><th>'+T('th_player')+'</th><th>'+T('th_wins')+'</th><th>'+T('th_money')+'</th></tr>'+
       list.map(t=>'<tr><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+money(t.money)+'</td></tr>').join('')+'</table>';
@@ -1713,16 +1949,17 @@ function tableHtml(withEarn){
 }
 function roundEnd(w){
   phase='over';
-  if(w)w.wins++;
+  const winners=w?(teamMode?tanks.filter(t=>t.team===w.team):[w]):[];
+  winners.forEach(t=>t.wins++);
   const lead=Math.max(...tanks.map(t=>t.wins));
   for(const t of tanks){
-    const b=3000+Math.min(4500,1500*(lead-t.wins))+(t===w?6000:0);
+    const b=3000+Math.min(4500,1500*(lead-t.wins))+(winners.includes(t)?6000:0);
     t.money+=b;t.earn.bonus+=b;
   }
   const last=round>=maxRounds;
   if(last)clearSave();else saveGame(round+1);
   setTimeout(()=>{
-    showOv('<div class="card"><h2>'+(w?T('re_win',round,maxRounds,esc(w.name)):T('re_tie',round,maxRounds))+'</h2>'+
+    showOv('<div class="card"><h2>'+(w?(teamMode?T('re_win',round,maxRounds,teamName(w.team)):T('re_win',round,maxRounds,esc(w.name))):T('re_tie',round,maxRounds))+'</h2>'+
       '<p>'+T('re_info',money(3000),money(4500),money(6000),money(KILL_BONUS))+'</p>'+
       tableHtml(true)+'<button class="go" id="nx">'+(last?T('b_podium'):T('b_shop_next'))+'</button></div>');
     $('nx').onclick=()=>{audio();if(last)showFinale();else{round++;beginShops();}};
@@ -1730,13 +1967,14 @@ function roundEnd(w){
 }
 /* ====== Tallennus kierrosten välillä ====== */
 function saveGame(nextRound){
-  try{localStorage.setItem('tsota2g',JSON.stringify({round:nextRound,maxRounds,walls:wallMode,
-    tanks:tanks.map(t=>({i:t.i,lvl:t.lvl,name:t.name,wins:t.wins,money:Math.round(t.money),inv:t.inv,kills:t.kills}))}));}catch(e){}
+  try{localStorage.setItem('tsota2g',JSON.stringify({round:nextRound,maxRounds,walls:wallMode,mode:teamMode,
+    tanks:tanks.map(t=>({i:t.i,lvl:t.lvl,name:t.name,wins:t.wins,money:Math.round(t.money),inv:t.inv,kills:t.kills,team:t.team,ld:t.leader}))}));}catch(e){}
 }
 function clearSave(){try{localStorage.removeItem('tsota2g');}catch(e){}}
 function readSave(){try{const s=JSON.parse(localStorage.getItem('tsota2g')||'null');return s&&s.tanks&&s.tanks.length>=2?s:null;}catch(e){return null;}}
 function resumeGame(sv){
-  tanks=sv.tanks.map(o=>{const t=makeTank(o.i,o.lvl,o.name);t.wins=o.wins;t.money=o.money;t.inv=o.inv;t.kills=o.kills||0;return t;});
+  tanks=sv.tanks.map(o=>{const t=makeTank(o.i,o.lvl,o.name);t.wins=o.wins;t.money=o.money;t.inv=o.inv;t.kills=o.kills||0;t.team=o.team==null?-1:o.team;if(t.lvl>0){t.leader=o.ld||String(o.name).split(' ').pop();t.pers=persOf(t.leader);};return t;});
+  teamMode=sv.mode||0;
   maxRounds=sv.maxRounds;round=sv.round;wallMode=sv.walls||0;
   beginShops();
 }
@@ -1744,7 +1982,7 @@ function beginShops(){
   for(const t of tanks)if(t.lvl)aiBuy(t);
   shopQ=tanks.filter(t=>t.lvl===0);shopI=0;
   if(!shopQ.length){startRound();return;}
-  phase='shop';openShop();
+  phase='shop';shopStart();
 }
 const SHOP_CATS=[
  {id:'bombs',k:'cat_bombs',ids:['missile','baby_nuke','nuke','mega_nuke','bunker']},
@@ -1770,6 +2008,18 @@ function statLine(w){
   if(w.mv==='drone')return T('st_drone',w.r,w.dmg);
   return T('st_std',w.r,w.dmg);
 }
+/* Hot seat: laite kiertää ihmispelaajalta toiselle, suojaruutu piilottaa edellisen valinnat */
+function hotSeat(){return cfg.hot!==0&&tanks.filter(t=>t.lvl===0).length>=2;}
+function coverCard(t,kind,go){
+  showOv('<div class="card cover"><h2>'+T('hs_title')+'</h2><div class="hsname" style="color:'+t.col+'">'+'<i class="hsdot" style="background:'+t.col+'"></i><span>'+esc(t.name)+'</span></div>'+
+    (t.team>=0?'<p>'+teamName(t.team)+'</p>':'')+'<p>'+T(kind==='shop'?'hs_shop':'hs_turn')+'</p><button class="go" id="hsok">'+T('hs_ready')+'</button></div>');
+  $('hsok').onclick=()=>{audio();go();};
+}
+function shopStart(){
+  const t=shopQ[shopI];
+  if(hotSeat())coverCard(t,'shop',()=>openShop());else openShop();
+}
+let prevCur=-1;
 function openShop(keepScroll){
   const t=shopQ[shopI],old=ov.querySelector('.shoplist');const sc=keepScroll&&old?old.scrollTop:0;
   const cat=SHOP_CATS.find(c=>c.id===shopTab)||SHOP_CATS[0];
@@ -1792,7 +2042,7 @@ function openShop(keepScroll){
     const w=WID[el.dataset.id];
     if(t.money>=w.price&&(t.inv[w.id]||0)<99){t.money-=w.price;t.inv[w.id]=(t.inv[w.id]||0)+w.bundle;audio();openShop(true);}
   });
-  $('done').onclick=()=>{audio();if(shopI<shopQ.length-1){shopI++;openShop();}else startRound();};
+  $('done').onclick=()=>{audio();if(shopI<shopQ.length-1){shopI++;shopStart();}else startRound();};
 }
 function setLang(c){
   LANG=c;try{localStorage.setItem('tsota2lang',c);}catch(e){}
@@ -1809,70 +2059,117 @@ function langPicker(){
     '<button class="tab" role="tab" data-lang="'+c+'" aria-selected="'+(c===LANG)+'">'+n+'</button>').join('')+'</div>';
 }
 function bindLang(again){ov.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{setLang(b.dataset.lang);audio();again();});}
+/* Asetusten luku/kirjoitus: vapaassa pelissä cfg.slots, joukkuepelissä cfg.tslots[joukkue][paikka] */
+const sGet=i=>cfg.mode?cfg.tslots[Math.floor(i/cfg.mode)][i%cfg.mode]:cfg.slots[i];
+const sSet=(i,v)=>{if(cfg.mode)cfg.tslots[Math.floor(i/cfg.mode)][i%cfg.mode]=v;else cfg.slots[i]=v;};
+const nGet=i=>cfg.mode?cfg.tnames[Math.floor(i/cfg.mode)][i%cfg.mode]:cfg.names[i];
+const nSet=(i,v)=>{if(cfg.mode)cfg.tnames[Math.floor(i/cfg.mode)][i%cfg.mode]=v;else cfg.names[i]=v;};
+const slotsNow=()=>cfg.mode?2*cfg.mode:slotCount();
 function readSetupForm(){
   if(!$('s0'))return;
-  const n=slotCount();
-  for(let i=0;i<n;i++){cfg.slots[i]=+$('s'+i).value;cfg.names[i]=cleanName($('n'+i).value);}
-  cfg.rounds=+$('rds').value;cfg.walls=+$('wl').value;
+  const n=slotsNow();
+  for(let i=0;i<n;i++){sSet(i,+$('s'+i).value);nSet(i,cleanName($('n'+i).value));}
+  cfg.rounds=+$('rds').value;cfg.walls=+$('wl').value;cfg.weather=+$('wxs').value;cfg.hot=+$('hot').value;
 }
 function showSetup(){
   $('app').classList.remove('fin');
   phase='menu';paused=false;
-  const n=slotCount();
+  const n=slotsNow();
   const opt=(v,cur,s)=>'<option value="'+v+'"'+(v===cur?' selected':'')+'>'+s+'</option>';
-  let h='<div class="card">'+langPicker()+'<h1>'+T('title')+'</h1><p>'+T('setup_intro')+'</p>';
+  let h='<div class="card">'+langPicker()+'<h1>'+T('title')+'</h1><p>'+T('setup_intro')+'</p>'+
+    '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_mode')+'</span><select id="mode">'+
+    opt(0,cfg.mode,T('mode_ffa'))+opt(1,cfg.mode,'1 vs 1')+opt(2,cfg.mode,'2 vs 2')+opt(3,cfg.mode,'3 vs 3')+'</select></div>';
   for(let i=0;i<n;i++){
+    if(cfg.mode&&i%cfg.mode===0){const k=i/cfg.mode;h+='<div class="teamhead" style="color:'+TEAM_COL[k]+'">'+(k?'■ ':'▲ ')+T('team'+(k+1))+'</div>';}
+    const cv=sGet(i);
     h+='<div class="slot"><i style="background:'+COLORS[i]+'"></i><span>'+T('slot_player',i+1)+'</span><select id="s'+i+'">'+
-      opt(-1,cfg.slots[i],T('opt_none'))+opt(0,cfg.slots[i],T('opt_human'))+
-      [1,2,3,4,5].map(k=>opt(k,cfg.slots[i],T('opt_cpu',rankName(k)))).join('')+'</select></div>'+
-      '<div class="slot namerow" id="nr'+i+'"'+(cfg.slots[i]===0?'':' hidden')+'><i></i><span>'+T('slot_name')+'</span>'+
-      '<input type="text" id="n'+i+'" maxlength="14" autocomplete="off" placeholder="'+esc(T('ph_player',i+1))+'" value="'+esc((cfg.names&&cfg.names[i])||'')+'"></div>';
+      opt(-1,cv,T('opt_none'))+opt(0,cv,T('opt_human'))+
+      [1,2,3,4,5].map(k=>opt(k,cv,T('opt_cpu',rankName(k)))).join('')+'</select></div>'+
+      '<div class="slot namerow" id="nr'+i+'"'+(cv===0?'':' hidden')+'><i></i><span>'+T('slot_name')+'</span>'+
+      '<input type="text" id="n'+i+'" maxlength="14" autocomplete="off" placeholder="'+esc(T('ph_player',i+1))+'" value="'+esc(nGet(i)||'')+'"></div>';
   }
   h+='<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_rounds')+'</span><select id="rds">'+
     [3,5,10,15].map(k=>opt(k,cfg.rounds,k)).join('')+'</select></div>'+
+    '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_hot')+'</span><select id="hot">'+opt(1,cfg.hot===0?0:1,T('on'))+opt(0,cfg.hot===0?0:1,T('off'))+'</select></div>'+
+    '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_weather')+'</span><select id="wxs">'+
+    opt(0,cfg.weather|0,T('wx0'))+opt(1,cfg.weather|0,'☀ '+T('wx1'))+opt(2,cfg.weather|0,'⛈ '+T('wx2'))+opt(3,cfg.weather|0,'❄ '+T('wx3'))+'</select></div>'+
     '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_walls')+'</span><select id="wl">'+
     opt(0,cfg.walls,T('wall0'))+opt(1,cfg.walls,T('wall1'))+opt(2,cfg.walls,T('wall2'))+'</select></div>'+
-    '<p id="err" style="color:var(--danger);margin:6px 0 0"></p><button class="go" id="start">'+T('b_start')+'</button>';
+    '<p id="err" style="color:var(--danger);margin:6px 0 0"></p><button class="go" id="start">'+T('b_start')+'</button><button class="go alt" id="guide">'+T('b_guide')+'</button>';
   const sv=readSave();
   if(sv)h+='<button class="go alt" id="resume">'+T('b_resume',sv.round,sv.maxRounds)+'</button>';
   h+='</div>';
   showOv(h);
   bindLang(()=>{readSetupForm();showSetup();});
+  $('mode').onchange=()=>{readSetupForm();cfg.mode=+$('mode').value;showSetup();};
   for(let i=0;i<n;i++)$('s'+i).onchange=()=>{$('nr'+i).hidden=+$('s'+i).value!==0;};
   $('start').onclick=()=>{
     audio();
     readSetupForm();
-    if(cfg.slots.slice(0,n).filter(v=>v>=0).length<2){$('err').textContent=T('err_min2');return;}
+    if(cfg.mode){
+      for(let k=0;k<2;k++)if(!cfg.tslots[k].slice(0,cfg.mode).some(v=>v>=0)){$('err').textContent=T('err_team');return;}
+    }else if(cfg.slots.slice(0,n).filter(v=>v>=0).length<2){$('err').textContent=T('err_min2');return;}
     saveCfg();startGame();
   };
+  $('guide').onclick=()=>{readSetupForm();showTutorial(0,showSetup);};
   if(sv)$('resume').onclick=()=>{audio();resumeGame(sv);};
 }
+/* Aloitusopas */
+function showTutorial(i,back){
+  const N=6;i=clamp(i,0,N-1);
+  showOv('<div class="card tut">'+langPicker()+'<h2>'+T('tut_t'+(i+1))+'</h2><p>'+T('tut_b'+(i+1))+'</p>'+
+    '<div class="dots">'+Array.from({length:N},(_,k)=>'<i class="'+(k===i?'on':'')+'"></i>').join('')+'</div>'+
+    '<div class="tbtns">'+(i>0?'<button class="go alt" id="tp">'+T('tut_prev')+'</button>':'')+
+    '<button class="go" id="tn">'+(i<N-1?T('tut_next'):T('tut_done'))+'</button></div></div>');
+  bindLang(()=>showTutorial(i,back));
+  if(i>0)$('tp').onclick=()=>showTutorial(i-1,back);
+  $('tn').onclick=()=>{audio();if(i<N-1)showTutorial(i+1,back);else{try{localStorage.setItem('tsota2tut','1');}catch(e){}back();}};
+}
+function tutSeen(){try{return localStorage.getItem('tsota2tut')==='1';}catch(e){return true;}}
+/* Vastustajaesittely ennen ensimmäistä kauppaa */
+function showBriefing(next){
+  const ai=tanks.filter(t=>t.lvl>0);
+  if(!ai.length){next();return;}
+  showOv('<div class="card"><h2>'+T('brief_title')+'</h2>'+ai.map(t=>'<div class="slot" style="align-items:flex-start"><i style="background:'+t.col+'"></i><span style="flex:1"><b>'+esc(t.name)+'</b>'+
+    (t.team>=0?' '+teamName(t.team):'')+'<br><b style="color:var(--accent)">'+T('pers_'+t.pers)+'</b> – <small>'+T('pd_'+t.pers)+'</small></span></div>').join('')+
+    '<button class="go" id="bgo">'+T('b_continue')+'</button></div>');
+  $('bgo').onclick=()=>{audio();next();};
+}
 function showPause(){
-  showOv('<div class="card">'+langPicker()+'<h2>'+T('pause_title')+'</h2><button class="go" id="res">'+T('b_continue')+'</button><button class="go alt" id="nw">'+T('b_newgame')+'</button></div>');
+  showOv('<div class="card">'+langPicker()+'<h2>'+T('pause_title')+'</h2><button class="go" id="res">'+T('b_continue')+'</button><button class="go alt" id="nw">'+T('b_newgame')+'</button><button class="go alt" id="gd">'+T('b_guide')+'</button></div>');
+  $('gd').onclick=()=>showTutorial(0,showPause);
   bindLang(showPause);
   $('res').onclick=()=>{paused=false;hideOv();syncUI();};
   $('nw').onclick=()=>{paused=false;showSetup();};
 }
 function startGame(){
   tanks=[];
-  const n=slotCount();
-  const act=cfg.slots.slice(0,n).map((v,i)=>({v,i})).filter(o=>o.v>=0);
+  const n=slotsNow(),N=cfg.mode;
+  let act=[];for(let i=0;i<n;i++){const v=sGet(i);if(v>=0)act.push({v,i,team:N?Math.floor(i/N):-1});}
+  if(N){ // vuorojärjestys vuorotellen joukkueesta toiseen
+    const a=act.filter(o=>o.team===0),b=act.filter(o=>o.team===1),m=[];
+    for(let k=0;k<Math.max(a.length,b.length);k++){if(a[k])m.push(a[k]);if(b[k])m.push(b[k]);}
+    act=m;
+  }
   const used=new Set();
   const hum=act.filter(o=>o.v===0).map(o=>{
-    let nm=cleanName(cfg.names&&cfg.names[o.i])||T('ph_player',o.i+1);
+    let nm=cleanName(nGet(o.i))||T('ph_player',o.i+1);
     if(used.has(nm.toLowerCase()))nm=nm.slice(0,12)+' '+(o.i+1);
     used.add(nm.toLowerCase());return {o,n:nm};
   });
   const leaders=drawLeaders(act.filter(o=>o.v>0).length,[...used]);
   let li=0;
   act.forEach(o=>{
-    let name;
+    let name,ldr='';
     if(o.v===0)name=hum.find(h=>h.o===o).n;
-    else name=rankName(o.v)+' '+leaders[li++];
-    tanks.push(makeTank(o.i,o.v,name));
+    else{ldr=leaders[li++];name=rankName(o.v)+' '+ldr;}
+    const t=makeTank(o.i,o.v,name);t.team=o.team;
+    if(o.v>0){t.leader=leaderKey(ldr);t.pers=persOf(t.leader);}
+    tanks.push(t);
   });
+  teamMode=N;
   maxRounds=cfg.rounds;round=1;wallMode=cfg.walls||0;clearSave();
-  beginShops();
+  showBriefing(beginShops);
 }
 
 /* ====== Pääsilmukka ====== */
@@ -1884,7 +2181,7 @@ function frame(ts){
     accT+=dt;let n=0;
     const run=phase!=='menu'&&phase!=='shop';
     while(accT>=1/120&&n++<70){if(run)stepWorld(1/120);accT-=1/120;}
-    updateCam(rdt);
+    updateCam(rdt);wxAnim(rdt);
     if(phase==='aim'){if(ov.classList.contains('hidden'))aiUpdate(dt);}
     else if(phase==='fly'){
       if(!busy()){settle+=dt;if(settle>.7)endTurn();}else settle=0;
