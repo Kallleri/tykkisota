@@ -73,7 +73,7 @@ th{color:var(--muted);font-weight:400;font-size:12px}
   .row label{display:none}
   .row output{width:38px}
 }
-@media (orientation:landscape) and (min-width:1000px){.row label{display:block}}
+@media (orientation:landscape) and (min-width:1000px){.row label{display:block}#panel{width:min(330px,30vw)}.row output{width:48px}}
 .card.shop{display:flex;flex-direction:column;overflow:hidden;height:min(660px,calc(100% - 16px))}
 .shophead{flex:none}
 .shoplist{flex:1;min-height:0;overflow:auto;margin:0 -4px 4px;padding:0 4px}
@@ -96,6 +96,7 @@ tr.sub td{color:var(--muted);font-size:12px;padding-top:0}
   #ov.finale .card{width:min(250px,34vw);max-height:none;margin:8px}
 }
 [hidden]{display:none!important}
+.langs{margin:0 0 10px}
 input[type=text]{flex:1;min-width:0;min-height:40px;border-radius:8px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);padding:0 10px;font:600 14px var(--f-body);-webkit-user-select:text;user-select:text}
 input[type=text]::placeholder{color:var(--muted);font-weight:400}
 input[type=text]:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
@@ -108,26 +109,26 @@ input[type=text]:focus-visible{outline:2px solid var(--accent2);outline-offset:2
     <div id="stageBtns">
       <button class="btn sm" id="btnSpd">×1</button>
       <button class="btn sm" id="btnCam">Kamera</button>
-      <button class="btn sm" id="btnSnd">Ääni</button>
-      <button class="btn sm" id="btnMenu">Valikko</button>
+      <button class="btn sm" id="btnSnd" data-t="b_snd">Ääni</button>
+      <button class="btn sm" id="btnMenu" data-t="b_menu">Valikko</button>
     </div>
   </div>
   <div id="panel">
-    <div class="row"><label for="ang">Kulma</label><button class="btn" id="aDn" aria-label="Kulma pienemmäksi">−</button>
-      <input type="range" id="ang" min="0" max="180" value="60"><button class="btn" id="aUp" aria-label="Kulma suuremmaksi">+</button><output id="angV">60</output></div>
-    <div class="row"><label for="pow">Voima</label><button class="btn" id="pDn" aria-label="Voima pienemmäksi">−</button>
-      <input type="range" id="pow" min="5" max="100" value="50"><button class="btn" id="pUp" aria-label="Voima suuremmaksi">+</button><output id="powV">50</output></div>
-    <div class="row"><label>Ase</label><button class="btn" id="wPrev" aria-label="Edellinen ase">◀</button>
-      <div id="wName">–</div><button class="btn" id="wNext" aria-label="Seuraava ase">▶</button></div>
+    <div class="row"><label for="ang" data-t="l_angle">Kulma</label><button class="btn" id="aDn" data-ta="a_angdn" aria-label="Kulma pienemmäksi">−</button>
+      <input type="range" id="ang" min="0" max="180" value="60"><button class="btn" id="aUp" data-ta="a_angup" aria-label="Kulma suuremmaksi">+</button><output id="angV">60</output></div>
+    <div class="row"><label for="pow" data-t="l_power">Voima</label><button class="btn" id="pDn" data-ta="a_powdn" aria-label="Voima pienemmäksi">−</button>
+      <input type="range" id="pow" min="5" max="100" value="50"><button class="btn" id="pUp" data-ta="a_powup" aria-label="Voima suuremmaksi">+</button><output id="powV">50</output></div>
+    <div class="row"><label data-t="l_weapon">Ase</label><button class="btn" id="wPrev" data-ta="a_wprev" aria-label="Edellinen ase">◀</button>
+      <div id="wName">–</div><button class="btn" id="wNext" data-ta="a_wnext" aria-label="Seuraava ase">▶</button></div>
     <button id="fire">TULTA!</button>
-    <p id="hint">Vedä sormella kentällä kuin ritsalla tai käytä säätimiä. Vaakatila antaa isomman kentän.</p>
+    <p id="hint" data-t="hint">Vedä sormella kentällä kuin ritsalla tai käytä säätimiä. Vaakatila antaa isomman kentän.</p>
   </div>
   <div id="ov" class="hidden"></div>
 </div>
 <script>
 'use strict';
 /* ====== Perusasetukset ====== */
-let W=800;const H=450,S=2,G=240,VM=4.6;
+let W=800,H=450;const S=2,G=240,VM=4.6;
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -135,8 +136,13 @@ const rint=(a,b)=>Math.floor(rnd(a,b+1));
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const gauss=()=>{let u=0;for(let i=0;i<4;i++)u+=Math.random();return (u-2)*1.732;};
-const money=n=>'$'+Math.round(n).toLocaleString('fi-FI');
-const LEVELS=['Alokas','Kersantti','Vänrikki','Majuri','Kenraali'];
+const I18N={fi:{},sv:{},en:{}};
+let LANG='fi';try{const l=localStorage.getItem('tsota2lang');if(l&&I18N[l])LANG=l;}catch(e){}
+function T(k,...a){let s=I18N[LANG][k];if(s==null)s=I18N.fi[k];if(s==null)return k;return a.length?s.replace(/\{(\d)\}/g,(m,i)=>a[+i]):s;}
+const LOCALE={fi:'fi-FI',sv:'sv-SE',en:'en-US'};
+const money=n=>'$'+Math.round(n).toLocaleString(LOCALE[LANG]||'fi-FI');
+const wn=w=>T('wn_'+w.id),wd=w=>T('wd_'+w.id);
+const rankName=i=>T('rank'+i);
 const LEADERS=['Napoleon','Caesar','Aleksanteri','Hannibal','Attila','Tšingis','Leonidas','Kleopatra','Kyyros','Mannerheim',
  'Kekkonen','Paasikivi','Churchill','Bismarck','Washington','Lincoln','Wellington','Nelson','Saladin','Boudicca','Katariina',
  'Elisabet','Pietari','Kaarle XII','Kustaa Aadolf','Eisenhower','De Gaulle','Suvorov','Kutuzov','Scipio','Kaarle Suuri',
@@ -144,11 +150,11 @@ const LEADERS=['Napoleon','Caesar','Aleksanteri','Hannibal','Attila','Tšingis',
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function cleanName(s){return String(s||'').replace(/[<>&"'`]/g,'').replace(/\s+/g,' ').trim().slice(0,14);}
 function drawLeaders(n,avoid){
-  const bad=new Set(avoid.map(a=>a.toLowerCase())),pool=LEADERS.filter(l=>!bad.has(l.toLowerCase()));
+  const tr=(LEADER_TR[LANG]||{}),bad=new Set(avoid.map(a=>a.toLowerCase())),pool=LEADERS.map(l=>tr[l]||l).filter(l=>!bad.has(l.toLowerCase()));
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
   return pool.slice(0,n);
 }
-const COLORS=['#ff6b6b','#4dabf7','#ffd43b','#69db7c'];
+const COLORS=['#ff6b6b','#4dabf7','#ffd43b','#69db7c','#ff9f43','#cc5de8','#38d9a9','#f783ac'];
 
 /* ====== Aseet ====== */
 const WP=[
@@ -161,19 +167,23 @@ const WP=[
 {id:'deaths_head',n:'Kuoleman pää',d:'Jakautuu viideksi pikkuytimeksi.',price:20000,bundle:1,k:'split',col:'#b5179e',sp:{id:'c_death',n:5,s:42,rv:10}},
 {id:'funky',n:'Funky-pommi',d:'Kuusi hajapommia kaikkiin suuntiin.',price:8000,bundle:3,k:'split',col:'#f72585',sp:{id:'c_funky',n:6,s:70,rv:90}},
 {id:'cluster',n:'Rypälepommi',d:'Kahdeksan pientä pommia.',price:6000,bundle:3,k:'split',col:'#80ed99',sp:{id:'c_cluster',n:8,s:46,rv:60}},
-{id:'leap',n:'Sammakko',d:'Pomppii kolme kertaa ja räjähtää joka kerta.',price:5000,bundle:3,r:30,dmg:48,k:'leap',hops:3,col:'#7bd389'},
+{id:'leap',n:'Sammakko',d:'Pomppii kolme kertaa ja räjähtää joka kerta.',price:4500,bundle:3,r:30,dmg:48,k:'leap',hops:3,col:'#7bd389'},
 {id:'baby_roller',n:'Pikkuvierittäjä',d:'Vierii rinnettä alas kohteeseen.',price:3000,bundle:4,r:35,dmg:55,k:'roll',col:'#74c0fc'},
 {id:'roller',n:'Vierittäjä',d:'Vierii ja räjähtää laaksossa.',price:5000,bundle:3,r:55,dmg:85,k:'roll',col:'#4dabf7'},
 {id:'heavy_roller',n:'Raskasvierittäjä',d:'Iso vierittäjä.',price:9000,bundle:2,r:85,dmg:140,k:'roll',col:'#1c7ed6'},
-{id:'digger',n:'Kaivaja',d:'Kaivaa syvän kuopan.',price:2500,bundle:5,r:14,dmg:6,k:'dig',col:'#c9a227'},
-{id:'dirt',n:'Multapommi',d:'Kasaa maata. Hautaa tai suojaa.',price:2000,bundle:5,r:48,dmg:0,k:'dirt',col:'#a47148'},
-{id:'napalm',n:'Napalmi',d:'Jättää palavan lätäkön.',price:6000,bundle:3,r:50,ttl:2.8,fdps:13,dmg:0,k:'fire',col:'#ff6b35'},
-{id:'hot_napalm',n:'Kuumanapalmi',d:'Suurempi ja kuumempi.',price:12000,bundle:2,r:78,ttl:3.5,fdps:16,dmg:0,k:'fire',col:'#e8590c'},
-{id:'bunker',n:'Bunkkeripommi',d:'Porautuu maahan ennen räjähdystä.',price:7000,bundle:3,r:58,dmg:100,k:'burrow',col:'#868e96'},
+{id:'digger',n:'Kaivaja',d:'Kaivaa syvän kuopan.',price:2000,bundle:5,r:14,dmg:6,k:'dig',col:'#c9a227'},
+{id:'dirt',n:'Multapommi',d:'Kasaa maata. Hautaa tai suojaa.',price:1500,bundle:5,r:34,dmg:0,k:'dirt',col:'#a47148'},
+{id:'napalm',n:'Napalmi',d:'Jättää palavan lätäkön.',price:2500,bundle:3,r:50,ttl:2.8,fdps:13,dmg:0,k:'fire',col:'#ff6b35'},
+{id:'hot_napalm',n:'Kuumanapalmi',d:'Suurempi ja kuumempi.',price:5000,bundle:2,r:78,ttl:3.5,fdps:16,dmg:0,k:'fire',col:'#e8590c'},
+{id:'bunker',n:'Bunkkeripommi',d:'Porautuu maahan ennen räjähdystä.',price:6000,bundle:3,r:58,dmg:100,k:'burrow',col:'#868e96'},
 {id:'tracer',n:'Merkkiammus',d:'Näyttää lentoradan. Ei vahinkoa.',price:300,bundle:10,r:8,dmg:0,k:'tracer',col:'#e9ecef'},
-{id:'shield',n:'Kilpi',d:'Imee 100 vahinkoa.',price:5000,bundle:2,amt:100,k:'shield',col:'#3bc9db'},
-{id:'heavy_shield',n:'Raskas kilpi',d:'Imee 250 vahinkoa.',price:9000,bundle:1,amt:250,k:'shield',col:'#15aabf'},
-{id:'repair',n:'Korjaussarja',d:'Palauttaa 50 kestävyyttä.',price:4000,bundle:3,amt:50,k:'repair',col:'#51cf66'},
+{id:'shield',n:'Kilpi',d:'Imee 100 vahinkoa.',price:4000,bundle:2,amt:100,k:'shield',col:'#3bc9db'},
+{id:'heavy_shield',n:'Raskas kilpi',d:'Imee 250 vahinkoa.',price:6500,bundle:1,amt:250,k:'shield',col:'#15aabf'},
+{id:'laser',n:'Laser',d:'Lentää suoraan. Voima ei vaikuta.',price:3200,bundle:4,r:32,dmg:55,k:'std',mv:'laser',col:'#ff4d8d'},
+{id:'glider',n:'Liitopommi',d:'Liitää radan huipun jälkeen pitkälle.',price:2800,bundle:4,r:32,dmg:55,k:'std',mv:'glide',col:'#a5d8ff'},
+{id:'drone',n:'Drooni',d:'Hakeutuu tähtäyssuunnan lähimpään viholliseen.',price:3000,bundle:3,r:18,dmg:25,k:'std',mv:'drone',col:'#e599f7'},
+{id:'magnet',n:'Magneettisuoja',d:'Taivuttaa lähellä kulkevien ammusten rataa.',price:3000,bundle:2,amt:3,k:'magnet',col:'#da77f2'},
+{id:'repair',n:'Korjaussarja',d:'Palauttaa 50 kestävyyttä.',price:3000,bundle:3,amt:50,k:'repair',col:'#51cf66'},
 {id:'parachute',n:'Laskuvarjo',d:'Estää putoamisvahingon (automaattinen).',price:2000,bundle:5,k:'chute',col:'#fcc419'},
 {id:'c_mirv',hid:1,r:28,dmg:48,k:'std',col:'#4cc9f0'},
 {id:'c_death',hid:1,r:55,dmg:85,k:'std',col:'#b5179e'},
@@ -321,16 +331,254 @@ function addDirt(x,y,r){
   c.restore();
 }
 
+/* ====== Kielet: suomi, ruotsi, englanti ====== */
+const LANGS=[['fi','Suomi'],['sv','Svenska'],['en','English']];
+I18N.fi={
+ doc_title:"Tykistösota 2.0",title:"TYKISTÖSOTA 2.0",
+ l_angle:"Kulma",l_power:"Voima",l_weapon:"Ase",b_fire:"TULTA!",b_use:"KÄYTÄ",
+ hint:"Vedä sormella kentällä kuin ritsalla tai käytä säätimiä. Vaakatila antaa isomman kentän.",
+ hint_pc:"Vedä hiirellä kentällä, käytä nuolinäppäimiä (Shift = isompi askel), Tab vaihtaa asetta ja välilyönti ampuu.",
+ a_angdn:"Kulma pienemmäksi",a_angup:"Kulma suuremmaksi",a_powdn:"Voima pienemmäksi",a_powup:"Voima suuremmaksi",a_wprev:"Edellinen ase",a_wnext:"Seuraava ase",
+ b_cam:"Kamera",b_snd:"Ääni",b_menu:"Valikko",powmax:"maks {0}",wind:"Tuuli",
+ rank1:"Alokas",rank2:"Kersantti",rank3:"Vänrikki",rank4:"Majuri",rank5:"Kenraali",
+ fx_shield_on:"Kilpi päällä",fx_shield_down:"Kilpi rikki",fx_shield_weak:"Kilpi heikkenee",fx_magnet:"Magneetti!",fx_magnet_down:"Magneetti rikki",fx_magnet_on:"Magneettisuoja päällä",fx_kill:"tuho",
+ wn_baby:"Pikkuohjus",wd_baby:"Perusase. Ei lopu koskaan.",
+ wn_missile:"Ohjus",wd_missile:"Isompi räjähdys.",
+ wn_baby_nuke:"Pikkuydin",wd_baby_nuke:"Laaja räjähdys.",
+ wn_nuke:"Ydinpommi",wd_nuke:"Valtava räjähdys.",
+ wn_mega_nuke:"Megaydin",wd_mega_nuke:"Pyyhkäisee maiseman.",
+ wn_mirv:"MIRV",wd_mirv:"Jakautuu lentoradan huipulla viideksi.",
+ wn_deaths_head:"Kuoleman pää",wd_deaths_head:"Jakautuu viideksi pikkuytimeksi.",
+ wn_funky:"Funky-pommi",wd_funky:"Kuusi hajapommia kaikkiin suuntiin.",
+ wn_cluster:"Rypälepommi",wd_cluster:"Kahdeksan pientä pommia.",
+ wn_leap:"Sammakko",wd_leap:"Pomppii kolme kertaa ja räjähtää joka kerta.",
+ wn_baby_roller:"Pikkuvierittäjä",wd_baby_roller:"Vierii rinnettä alas kohteeseen.",
+ wn_roller:"Vierittäjä",wd_roller:"Vierii ja räjähtää laaksossa.",
+ wn_heavy_roller:"Raskasvierittäjä",wd_heavy_roller:"Iso vierittäjä.",
+ wn_digger:"Kaivaja",wd_digger:"Kaivaa syvän kuopan.",
+ wn_dirt:"Multapommi",wd_dirt:"Kasaa maata. Hautaa tai suojaa.",
+ wn_napalm:"Napalmi",wd_napalm:"Jättää palavan lätäkön.",
+ wn_hot_napalm:"Kuumanapalmi",wd_hot_napalm:"Suurempi ja kuumempi.",
+ wn_bunker:"Bunkkeripommi",wd_bunker:"Porautuu maahan ennen räjähdystä.",
+ wn_laser:"Laser",wd_laser:"Lentää suoraan. Voima ei vaikuta.",
+ wn_glider:"Liitopommi",wd_glider:"Liitää radan huipun jälkeen pitkälle.",
+ wn_drone:"Drooni",wd_drone:"Hakeutuu tähtäyssuunnan lähimpään viholliseen.",
+ wn_magnet:"Magneettisuoja",wd_magnet:"Taivuttaa lähellä kulkevien ammusten rataa. Häviää osumasta tai 3 kierroksen jälkeen.",
+ wn_tracer:"Merkkiammus",wd_tracer:"Näyttää lentoradan. Ei vahinkoa.",
+ wn_shield:"Kilpi",wd_shield:"Imee 100 vahinkoa. Heikkenee puoleen 2 kierroksessa ja häviää 4:ssä.",
+ wn_heavy_shield:"Raskas kilpi",wd_heavy_shield:"Imee 250 vahinkoa. Heikkenee puoleen 2 kierroksessa ja häviää 4:ssä.",
+ wn_repair:"Korjaussarja",wd_repair:"Palauttaa 50 kestävyyttä.",
+ wn_parachute:"Laskuvarjo",wd_parachute:"Estää putoamisvahingon (automaattinen).",
+ st_shield:"Imee {0} vahinkoa",st_repair:"+{0} kestävyyttä",st_chute:"Estää putoamisvahingon",st_tracer:"Ei vahinkoa",
+ st_split:"{0} osaa · säde {1} · vahinko {2} / osa",st_fire:"Säde {0} · {1} vahinkoa/s · {2} s",st_dirt:"Säde {0} · ei vahinkoa",
+ st_dig:"Kaivaa tunnelin",st_std:"Säde {0} · vahinko {1}",st_laser:"Suora lento · säde {0} · vahinko {1}",
+ st_glide:"Liitää · säde {0} · vahinko {1}",st_drone:"Hakeutuu · säde {0} · vahinko {1}",st_magnet:"Yksi osuma · 3 kierrosta · vaikuttaa lähellä tankkia",
+ cat_bombs:"Pommit",cat_split:"Jakautuvat",cat_special:"Erikoisaseet",cat_paths:"Lentoradat",cat_shields:"Suojat",cat_gear:"Varusteet",
+ shop_title:"Kauppa",shop_round:"Kierros {0}/{1}. Napauta tuotetta ostaaksesi.",shop_own:"omistat {0}",
+ b_next_player:"VALMIS · SEURAAVA PELAAJA",b_start_round:"ALOITA KIERROS",
+ setup_intro:"Vuoropohjainen tykistöpeli. Säädä kulma ja voima, huomioi tuuli ja tuhoa vastustajat. Voit pelata useammalla ihmisellä samalla laitteella.",
+ slot_player:"Pelaaja {0}",opt_none:"Ei pelaajaa",opt_human:"Ihminen",opt_cpu:"Tietokone: {0}",slot_name:"Nimi",ph_player:"Pelaaja {0}",
+ slot_rounds:"Kierroksia",slot_walls:"Seinät",wall0:"Ei seiniä (ammus katoaa)",wall1:"Kimpoavat",wall2:"Kiertävät ympäri",slot_lang:"Kieli",
+ err_min2:"Valitse vähintään kaksi pelaajaa.",b_start:"ALOITA PELI",b_resume:"JATKA PELIÄ (kierros {0}/{1})",
+ pause_title:"Tauko",b_continue:"JATKA",b_newgame:"UUSI PELI",
+ re_win:"Kierros {0}/{1}: {2} voitti",re_tie:"Kierros {0}/{1}: tasapeli",
+ re_info:"Jokainen saa {0} palkkion, jäljessä olevat lisää (enintään {1}) ja voittaja {2}. Jokaisesta tuhotusta vihollisesta saa {3} ja vahingosta rahaa.",
+ b_podium:"PALKINTOKOROKKEELLE",b_shop_next:"KAUPPA JA SEURAAVA KIERROS",
+ th_player:"Pelaaja",th_wins:"Voitot",th_money:"Rahat",th_round:"Kierros",earn_none:"ei ansioita",earn_dmg:"vahinko {0}",
+ earn_kill1:"{0} tuho {1}",earn_killn:"{0} tuhoa {1}",earn_bonus:"palkkio {0}",
+ fin_title:"Peli ohi",fin_winner:"Voittaja",
+ quotes:[
+ ["Et tu, Brute?","— Caesar"],["Älä sotke ympyröitäni!","— Arkhimedes"],["Kiitos Jumalalle, olen täyttänyt velvollisuuteni.","— Nelson"],
+ ["Lisää valoa!","— Goethe"],["Joko tämä tapetti lähtee tai minä.","— Oscar Wilde"],
+ ["Viimeiset sanat ovat tyhmille, jotka eivät ole ehtineet sanoa tarpeeksi.","— Karl Marx"],["Siellä on hyvin kaunista.","— Edison"],
+ ["Minua kyllästyttää kaikki tämä.","— Churchill"],["Ei olisi pitänyt vaihtaa viskistä martineihin.","— Bogart"],
+ ["Älä anna tämän loppua tähän. Kerro, että sanoin jotain.","— Pancho Villa"],
+ ["Hups."],["Tämä ei ollut suunnitelmissa."],["Sanoin, että tarvitsen paksumman panssarin!"],["Se oli vain naarmu..."],["Kuka sammutti valot?"],
+ ["Kerro äidille, että pärjäsin hyvin."],["Joku voisi tarkistaa nuo ammukset..."],["Tuuli oli liian kova. Sanoin sen."],
+ ["Täällä haisee palaneelle."],["Vakuutus kattaa tämän, eikö?"],["Luulin, että kilpi oli päällä."],["Olisi pitänyt jäädä kotiin."],
+ ["Tankkaus unohtui."],["Kiitos pelaamisesta!"],["Ai tässä olikin takuu..."],["Miksi aina minä?"],["Hyvä laukaus. Todella."],
+ ["Sanoin, ettei kannattanut mennä tähän laaksoon."],["Ammukset, vaihteisto... mikä näistä nyt räjähti?"],
+ ["Nähdään Valhallassa. Ota kahvit mukaan."],["Pitäisikö minun ehkä siirtyä sivuun?"],["Savuaa vähän..."],
+ ["Nyt kaduttaa, etten lukenut käyttöohjetta."],["Voi ei, tämä oli vuokravaunu."],
+ ["Tulin, näin ja räjähdin.","— Caesar (melkein)"],["Houston, meillä on ongelma.","— Apollo 13"],["Palaan vielä.","— Terminaattori"],
+ ["Veni, vidi, kaboom."],["Eikö tämä ollutkaan harjoitus?"],["Ja minä kun korjasin tämän tykin eilen."],["Se ei kuulunut ohjeeseen."],
+ ["Eikö tuuli muka ollutkaan oikealle?"],["Anteeksi, taisin olla tiellä."],["Hyvästi, julma maailma."],["En tunne mitään... paitsi liekit."],
+ ["Kuka pani pommin tähän?"],["Älä ammu! Olen siviili!"],["Rakensin tämän itse. Ei takuuta."],["Mikä kaunis sää räjähdyksille."],
+ ["Haluan puhua esimiehelleni."],["Oliko tuo ohjus vai pelkkä fiilis?"],["Tiesin, että tästä tulee huono päivä."],
+ ["Kuolen kuninkaani puolesta! Ja vähän omasta tyhmyydestäni."],["Tämä on vain väliaikainen takaisku."],["Sanokaa sotilaille, että pidin heistä."]
+ ]
+};
+I18N.sv={
+ doc_title:"Artillerikriget 2.0",title:"ARTILLERIKRIGET 2.0",
+ l_angle:"Vinkel",l_power:"Kraft",l_weapon:"Vapen",b_fire:"ELD!",b_use:"ANVÄND",
+ hint:"Dra med fingret på banan som med en slangbella eller använd reglagen. Liggande läge ger större bana.",
+ hint_pc:"Dra med musen på banan, använd piltangenterna (Shift = större steg), Tab byter vapen och mellanslag skjuter.",
+ a_angdn:"Mindre vinkel",a_angup:"Större vinkel",a_powdn:"Mindre kraft",a_powup:"Större kraft",a_wprev:"Föregående vapen",a_wnext:"Nästa vapen",
+ b_cam:"Kamera",b_snd:"Ljud",b_menu:"Meny",powmax:"max {0}",wind:"Vind",
+ rank1:"Rekryt",rank2:"Sergeant",rank3:"Fänrik",rank4:"Major",rank5:"General",
+ fx_shield_on:"Sköld på",fx_shield_down:"Skölden brast",fx_shield_weak:"Skölden försvagas",fx_magnet:"Magnet!",fx_magnet_down:"Magneten brast",fx_magnet_on:"Magnetsköld på",fx_kill:"förstörd",
+ wn_baby:"Minirobot",wd_baby:"Standardvapen. Tar aldrig slut.",
+ wn_missile:"Robot",wd_missile:"Större explosion.",
+ wn_baby_nuke:"Minikärna",wd_baby_nuke:"Bred explosion.",
+ wn_nuke:"Kärnbomb",wd_nuke:"Enorm explosion.",
+ wn_mega_nuke:"Megakärna",wd_mega_nuke:"Sopar bort landskapet.",
+ wn_mirv:"MIRV",wd_mirv:"Delar sig i fem vid banans topp.",
+ wn_deaths_head:"Dödskalle",wd_deaths_head:"Delar sig i fem minikärnor.",
+ wn_funky:"Funkybomb",wd_funky:"Sex spridda bomber åt alla håll.",
+ wn_cluster:"Klusterbomb",wd_cluster:"Åtta små bomber.",
+ wn_leap:"Groda",wd_leap:"Studsar tre gånger och exploderar varje gång.",
+ wn_baby_roller:"Minirullare",wd_baby_roller:"Rullar nedför sluttningen mot målet.",
+ wn_roller:"Rullare",wd_roller:"Rullar och exploderar i dalen.",
+ wn_heavy_roller:"Tung rullare",wd_heavy_roller:"Stor rullare.",
+ wn_digger:"Grävare",wd_digger:"Gräver en djup grop.",
+ wn_dirt:"Jordbomb",wd_dirt:"Bygger upp mark. Begraver eller skyddar.",
+ wn_napalm:"Napalm",wd_napalm:"Lämnar en brinnande pöl.",
+ wn_hot_napalm:"Het napalm",wd_hot_napalm:"Större och hetare.",
+ wn_bunker:"Bunkerbomb",wd_bunker:"Borrar ner i marken före explosionen.",
+ wn_laser:"Laser",wd_laser:"Flyger rakt. Kraften spelar ingen roll.",
+ wn_glider:"Glidbomb",wd_glider:"Glider långt efter banans topp.",
+ wn_drone:"Drönare",wd_drone:"Söker sig till närmaste fiende i siktets riktning.",
+ wn_magnet:"Magnetsköld",wd_magnet:"Böjer banan på projektiler som passerar nära. Försvinner vid träff eller efter 3 rundor.",
+ wn_tracer:"Spårkula",wd_tracer:"Visar banan. Ingen skada.",
+ wn_shield:"Sköld",wd_shield:"Absorberar 100 skada. Halveras efter 2 rundor och försvinner efter 4.",
+ wn_heavy_shield:"Tung sköld",wd_heavy_shield:"Absorberar 250 skada. Halveras efter 2 rundor och försvinner efter 4.",
+ wn_repair:"Reparationssats",wd_repair:"Återställer 50 hållbarhet.",
+ wn_parachute:"Fallskärm",wd_parachute:"Förhindrar fallskada (automatisk).",
+ st_shield:"Absorberar {0} skada",st_repair:"+{0} hållbarhet",st_chute:"Förhindrar fallskada",st_tracer:"Ingen skada",
+ st_split:"{0} delar · radie {1} · skada {2} / del",st_fire:"Radie {0} · {1} skada/s · {2} s",st_dirt:"Radie {0} · ingen skada",
+ st_dig:"Gräver en tunnel",st_std:"Radie {0} · skada {1}",st_laser:"Rak bana · radie {0} · skada {1}",
+ st_glide:"Glider · radie {0} · skada {1}",st_drone:"Målsökande · radie {0} · skada {1}",st_magnet:"En träff · 3 rundor · verkar nära stridsvagnen",
+ cat_bombs:"Bomber",cat_split:"Delande",cat_special:"Specialvapen",cat_paths:"Banor",cat_shields:"Skydd",cat_gear:"Utrustning",
+ shop_title:"Butik",shop_round:"Runda {0}/{1}. Tryck på en vara för att köpa.",shop_own:"du har {0}",
+ b_next_player:"KLAR · NÄSTA SPELARE",b_start_round:"STARTA RUNDAN",
+ setup_intro:"Turbaserat artillerispel. Ställ in vinkel och kraft, ta hänsyn till vinden och förstör motståndarna. Flera människor kan spela på samma enhet.",
+ slot_player:"Spelare {0}",opt_none:"Ingen spelare",opt_human:"Människa",opt_cpu:"Dator: {0}",slot_name:"Namn",ph_player:"Spelare {0}",
+ slot_rounds:"Rundor",slot_walls:"Väggar",wall0:"Inga väggar (skottet försvinner)",wall1:"Studsande",wall2:"Runt om",slot_lang:"Språk",
+ err_min2:"Välj minst två spelare.",b_start:"STARTA SPELET",b_resume:"FORTSÄTT SPELET (runda {0}/{1})",
+ pause_title:"Paus",b_continue:"FORTSÄTT",b_newgame:"NYTT SPEL",
+ re_win:"Runda {0}/{1}: {2} vann",re_tie:"Runda {0}/{1}: oavgjort",
+ re_info:"Alla får {0} i belöning, de som ligger efter får mer (högst {1}) och vinnaren {2}. För varje förstörd fiende får du {3}, och pengar för skada.",
+ b_podium:"TILL PRISPALLEN",b_shop_next:"BUTIK OCH NÄSTA RUNDA",
+ th_player:"Spelare",th_wins:"Segrar",th_money:"Pengar",th_round:"Runda",earn_none:"inga intäkter",earn_dmg:"skada {0}",
+ earn_kill1:"{0} förstörd {1}",earn_killn:"{0} förstörda {1}",earn_bonus:"belöning {0}",
+ fin_title:"Spelet slut",fin_winner:"Vinnare",
+ quotes:[
+ ["Et tu, Brute?","— Caesar"],["Rubba inte mina cirklar!","— Arkimedes"],["Tack och lov, jag har gjort min plikt.","— Nelson"],
+ ["Mer ljus!","— Goethe"],["Antingen går den här tapeten eller jag.","— Oscar Wilde"],
+ ["Sista ord är till för dårar som inte hunnit säga nog.","— Karl Marx"],["Det är mycket vackert där.","— Edison"],
+ ["Jag är less på allt det här.","— Churchill"],["Man skulle inte ha bytt från whisky till martini.","— Bogart"],
+ ["Låt det inte sluta här. Säg att jag sa något.","— Pancho Villa"],
+ ["Hoppsan."],["Det här stod inte i planen."],["Jag sa ju att jag behövde tjockare pansar!"],["Det var bara en skråma..."],["Vem släckte ljuset?"],
+ ["Säg till mamma att jag klarade mig bra."],["Någon borde kolla den där ammunitionen..."],["Vinden var för stark. Det sa jag."],
+ ["Det luktar bränt här."],["Försäkringen täcker väl det här?"],["Jag trodde att skölden var på."],["Jag borde ha stannat hemma."],
+ ["Glömde tanka."],["Tack för att ni spelade!"],["Jaså, det fanns garanti..."],["Varför alltid jag?"],["Bra skott. Verkligen."],
+ ["Jag sa att man inte skulle gå in i den här dalen."],["Ammunition, växellåda... vad var det som exploderade?"],
+ ["Vi ses i Valhalla. Ta med kaffe."],["Borde jag kanske flytta mig åt sidan?"],["Det ryker lite..."],
+ ["Nu ångrar jag att jag inte läste bruksanvisningen."],["Åh nej, det här var en hyrbil."],
+ ["Jag kom, jag såg och jag exploderade.","— Caesar (nästan)"],["Houston, vi har ett problem.","— Apollo 13"],["Jag kommer tillbaka.","— Terminator"],
+ ["Veni, vidi, kaboom."],["Var det inte en övning?"],["Och jag som lagade den här kanonen igår."],["Det stod inte i instruktionen."],
+ ["Var inte vinden åt höger?"],["Ursäkta, jag stod visst i vägen."],["Farväl, grymma värld."],["Jag känner ingenting... förutom lågorna."],
+ ["Vem la en bomb här?"],["Skjut inte! Jag är civil!"],["Jag byggde den här själv. Ingen garanti."],["Så fint väder för explosioner."],
+ ["Jag vill tala med min chef."],["Var det en robot eller bara en känsla?"],["Jag visste att det skulle bli en dålig dag."],
+ ["Jag dör för min kung! Och lite för min egen dumhet."],["Det här är bara ett tillfälligt bakslag."],["Säg till soldaterna att jag tyckte om dem."]
+ ]
+};
+I18N.en={
+ doc_title:"Artillery War 2.0",title:"ARTILLERY WAR 2.0",
+ l_angle:"Angle",l_power:"Power",l_weapon:"Weapon",b_fire:"FIRE!",b_use:"USE",
+ hint:"Drag on the field like a slingshot or use the controls. Landscape gives a bigger field.",
+ hint_pc:"Drag with the mouse on the field, use the arrow keys (Shift = bigger step), Tab switches weapon and Space fires.",
+ a_angdn:"Decrease angle",a_angup:"Increase angle",a_powdn:"Decrease power",a_powup:"Increase power",a_wprev:"Previous weapon",a_wnext:"Next weapon",
+ b_cam:"Camera",b_snd:"Sound",b_menu:"Menu",powmax:"max {0}",wind:"Wind",
+ rank1:"Private",rank2:"Sergeant",rank3:"Lieutenant",rank4:"Major",rank5:"General",
+ fx_shield_on:"Shield on",fx_shield_down:"Shield down",fx_shield_weak:"Shield weakens",fx_magnet:"Magnet!",fx_magnet_down:"Magnet down",fx_magnet_on:"Magnet shield on",fx_kill:"kill",
+ wn_baby:"Baby Missile",wd_baby:"Basic weapon. Never runs out.",
+ wn_missile:"Missile",wd_missile:"Bigger explosion.",
+ wn_baby_nuke:"Baby Nuke",wd_baby_nuke:"Wide explosion.",
+ wn_nuke:"Nuke",wd_nuke:"Huge explosion.",
+ wn_mega_nuke:"Mega Nuke",wd_mega_nuke:"Wipes out the landscape.",
+ wn_mirv:"MIRV",wd_mirv:"Splits into five at the top of its arc.",
+ wn_deaths_head:"Death's Head",wd_deaths_head:"Splits into five mini nukes.",
+ wn_funky:"Funky Bomb",wd_funky:"Six scatter bombs in every direction.",
+ wn_cluster:"Cluster Bomb",wd_cluster:"Eight small bombs.",
+ wn_leap:"Leap Frog",wd_leap:"Bounces three times and explodes each time.",
+ wn_baby_roller:"Baby Roller",wd_baby_roller:"Rolls downhill toward the target.",
+ wn_roller:"Roller",wd_roller:"Rolls and explodes in the valley.",
+ wn_heavy_roller:"Heavy Roller",wd_heavy_roller:"A big roller.",
+ wn_digger:"Digger",wd_digger:"Digs a deep pit.",
+ wn_dirt:"Dirt Bomb",wd_dirt:"Piles up earth. Buries or protects.",
+ wn_napalm:"Napalm",wd_napalm:"Leaves a burning puddle.",
+ wn_hot_napalm:"Hot Napalm",wd_hot_napalm:"Bigger and hotter.",
+ wn_bunker:"Bunker Buster",wd_bunker:"Burrows into the ground before exploding.",
+ wn_laser:"Laser",wd_laser:"Flies straight. Power has no effect.",
+ wn_glider:"Glide Bomb",wd_glider:"Glides a long way after the top of its arc.",
+ wn_drone:"Drone",wd_drone:"Homes in on the enemy nearest your aim.",
+ wn_magnet:"Magnet Shield",wd_magnet:"Bends the path of projectiles passing close. Vanishes on a hit or after 3 rounds.",
+ wn_tracer:"Tracer",wd_tracer:"Shows the trajectory. No damage.",
+ wn_shield:"Shield",wd_shield:"Absorbs 100 damage. Halves after 2 rounds and vanishes after 4.",
+ wn_heavy_shield:"Heavy Shield",wd_heavy_shield:"Absorbs 250 damage. Halves after 2 rounds and vanishes after 4.",
+ wn_repair:"Repair Kit",wd_repair:"Restores 50 durability.",
+ wn_parachute:"Parachute",wd_parachute:"Prevents fall damage (automatic).",
+ st_shield:"Absorbs {0} damage",st_repair:"+{0} durability",st_chute:"Prevents fall damage",st_tracer:"No damage",
+ st_split:"{0} parts · radius {1} · damage {2} / part",st_fire:"Radius {0} · {1} damage/s · {2} s",st_dirt:"Radius {0} · no damage",
+ st_dig:"Digs a tunnel",st_std:"Radius {0} · damage {1}",st_laser:"Straight flight · radius {0} · damage {1}",
+ st_glide:"Glides · radius {0} · damage {1}",st_drone:"Homing · radius {0} · damage {1}",st_magnet:"One hit · 3 rounds · works near your tank",
+ cat_bombs:"Bombs",cat_split:"Splitting",cat_special:"Special",cat_paths:"Flight paths",cat_shields:"Defense",cat_gear:"Gear",
+ shop_title:"Shop",shop_round:"Round {0}/{1}. Tap an item to buy.",shop_own:"you own {0}",
+ b_next_player:"DONE · NEXT PLAYER",b_start_round:"START ROUND",
+ setup_intro:"A turn-based artillery game. Set angle and power, mind the wind and destroy your opponents. Several humans can play on the same device.",
+ slot_player:"Player {0}",opt_none:"No player",opt_human:"Human",opt_cpu:"Computer: {0}",slot_name:"Name",ph_player:"Player {0}",
+ slot_rounds:"Rounds",slot_walls:"Walls",wall0:"No walls (shot vanishes)",wall1:"Bouncing",wall2:"Wrap around",slot_lang:"Language",
+ err_min2:"Choose at least two players.",b_start:"START GAME",b_resume:"RESUME GAME (round {0}/{1})",
+ pause_title:"Paused",b_continue:"RESUME",b_newgame:"NEW GAME",
+ re_win:"Round {0}/{1}: {2} won",re_tie:"Round {0}/{1}: draw",
+ re_info:"Everyone gets a {0} bonus, trailing players get more (up to {1}) and the winner gets {2}. You earn {3} for each enemy destroyed, plus money for damage.",
+ b_podium:"TO THE PODIUM",b_shop_next:"SHOP AND NEXT ROUND",
+ th_player:"Player",th_wins:"Wins",th_money:"Money",th_round:"Round",earn_none:"no earnings",earn_dmg:"damage {0}",
+ earn_kill1:"{0} kill {1}",earn_killn:"{0} kills {1}",earn_bonus:"bonus {0}",
+ fin_title:"Game over",fin_winner:"Winner",
+ quotes:[
+ ["Et tu, Brute?","— Caesar"],["Do not disturb my circles!","— Archimedes"],["Thank God, I have done my duty.","— Nelson"],
+ ["More light!","— Goethe"],["Either this wallpaper goes or I do.","— Oscar Wilde"],
+ ["Last words are for fools who haven't said enough.","— Karl Marx"],["It is very beautiful over there.","— Edison"],
+ ["I am bored with it all.","— Churchill"],["I should never have switched from scotch to martinis.","— Bogart"],
+ ["Don't let it end like this. Tell them I said something.","— Pancho Villa"],
+ ["Oops."],["This was not in the plan."],["I said I needed thicker armor!"],["It was only a scratch..."],["Who turned off the lights?"],
+ ["Tell Mom I did well."],["Someone should check that ammo..."],["The wind was too strong. I said so."],
+ ["Something smells burnt in here."],["Insurance covers this, right?"],["I thought the shield was on."],["I should have stayed home."],
+ ["Forgot to refuel."],["Thanks for playing!"],["Oh, so that's what the warranty was for..."],["Why always me?"],["Nice shot. Really."],
+ ["I said we shouldn't go into this valley."],["Ammo, gearbox... which one just exploded?"],
+ ["See you in Valhalla. Bring coffee."],["Maybe I should step aside?"],["A little smoky..."],
+ ["Now I regret not reading the manual."],["Oh no, this was a rental tank."],
+ ["I came, I saw, I exploded.","— Caesar (almost)"],["Houston, we have a problem.","— Apollo 13"],["I'll be back.","— The Terminator"],
+ ["Veni, vidi, kaboom."],["Wasn't this a drill?"],["And I just fixed this cannon yesterday."],["That wasn't in the manual."],
+ ["Wasn't the wind blowing to the right?"],["Sorry, I think I was in the way."],["Farewell, cruel world."],["I feel nothing... except flames."],
+ ["Who put a bomb here?"],["Don't shoot! I'm a civilian!"],["I built this myself. No warranty."],["Such lovely weather for explosions."],
+ ["I want to speak to my superior."],["Was that a missile or just a feeling?"],["I knew today would be a bad day."],
+ ["I die for my king! And a little for my own stupidity."],["This is only a temporary setback."],["Tell the troops I liked them."]
+ ]
+};
+/* Johtajat: suomenkieliset muodot, muut kielet ylikirjoittavat vain eroavat */
+const LEADER_TR={
+ en:{'Aleksanteri':'Alexander','Tšingis':'Genghis','Kleopatra':'Cleopatra','Kyyros':'Cyrus','Katariina':'Catherine','Elisabet':'Elizabeth','Pietari':'Peter',
+  'Kaarle XII':'Charles XII','Kustaa Aadolf':'Gustavus Adolphus','Kaarle Suuri':'Charlemagne','Fredrik Suuri':'Frederick the Great','Sulaiman':'Suleiman',
+  'Johanna':'Joan','Ludvig XIV':'Louis XIV','Kustaa Vaasa':'Gustav Vasa','Kekkonen':'Kekkonen','Paasikivi':'Paasikivi'},
+ sv:{'Aleksanteri':'Alexander','Tšingis':'Djingis Khan','Kleopatra':'Kleopatra','Kyyros':'Kyros','Katariina':'Katarina','Elisabet':'Elisabet','Pietari':'Peter',
+  'Kaarle XII':'Karl XII','Kustaa Aadolf':'Gustav II Adolf','Kaarle Suuri':'Karl den store','Fredrik Suuri':'Fredrik den store','Sulaiman':'Süleyman',
+  'Johanna':'Johanna','Ludvig XIV':'Ludvig XIV','Kustaa Vaasa':'Gustav Vasa'}
+};
+
 /* ====== Pelitila ====== */
 const KILL_BONUS=4000;
 let wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
 let projs=[],rolls=[],burrows=[],fires=[],blasts=[],parts=[],texts=[],trails=[],pending=[];
-const cfg={slots:[0,3,-1,-1],rounds:5,walls:0,cam:1,names:['','','','']};
-try{const s=JSON.parse(localStorage.getItem('tsota2')||'null');if(s&&s.slots&&s.slots.length===4)Object.assign(cfg,s);}catch(e){}
+const cfg={slots:[0,3,-1,-1,-1,-1,-1,-1],rounds:5,walls:0,cam:1,names:['','','','','','','','']};
+try{const s=JSON.parse(localStorage.getItem('tsota2')||'null');if(s&&s.slots&&s.slots.length>=4)Object.assign(cfg,s);}catch(e){}
+while(cfg.slots.length<8)cfg.slots.push(-1);while(cfg.names.length<8)cfg.names.push('');
 function saveCfg(){try{localStorage.setItem('tsota2',JSON.stringify(cfg));}catch(e){}}
 
 function makeTank(i,lvl,name){
-  return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',shield:0,
+  return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',shield:0,mag:0,shAge:null,magAge:null,
     alive:true,wins:0,money:12000,fall:0,vy:0,acc:0,kills:0,mem:null,dHp:100,flash:0,last:null,lastImp:null,earn:{dmg:0,kills:0,nk:0,bonus:0}};
 }
 function tankPos(t){return {x:t.x,y:t.y-9};}
@@ -361,31 +609,10 @@ function floatText(x,y,txt,col){texts.push({x,y,txt,col:col||'#fff',t:0});}
 
 
 /* ====== Vaunun tuhoutuminen ====== */
-const QUOTES=[
- {t:'Et tu, Brute?',s:'— Caesar'},
- {t:'Älä sotke ympyröitäni!',s:'— Arkhimedes'},
- {t:'Kiitos Jumalalle, olen täyttänyt velvollisuuteni.',s:'— Nelson'},
- {t:'Lisää valoa!',s:'— Goethe'},
- {t:'Joko tämä tapetti lähtee tai minä.',s:'— Oscar Wilde'},
- {t:'Viimeiset sanat ovat tyhmille, jotka eivät ole ehtineet sanoa tarpeeksi.',s:'— Karl Marx'},
- {t:'Siellä on hyvin kaunista.',s:'— Edison'},
- {t:'Minua kyllästyttää kaikki tämä.',s:'— Churchill'},
- {t:'Ei olisi pitänyt vaihtaa viskistä martineihin.',s:'— Bogart'},
- {t:'Älä anna tämän loppua tähän. Kerro, että sanoin jotain.',s:'— Pancho Villa'},
- {t:'Hups.'},{t:'Tämä ei ollut suunnitelmissa.'},{t:'Sanoin, että tarvitsen paksumman panssarin!'},
- {t:'Se oli vain naarmu...'},{t:'Kuka sammutti valot?'},{t:'Kerro äidille, että pärjäsin hyvin.'},
- {t:'Joku voisi tarkistaa nuo ammukset...'},{t:'Tuuli oli liian kova. Sanoin sen.'},
- {t:'Täällä haisee palaneelle.'},{t:'Vakuutus kattaa tämän, eikö?'},{t:'Luulin, että kilpi oli päällä.'},
- {t:'Olisi pitänyt jäädä kotiin.'},{t:'Tankkaus unohtui.'},{t:'Kiitos pelaamisesta!'},
- {t:'Ai tässä olikin takuu...'},{t:'Miksi aina minä?'},{t:'Hyvä laukaus. Todella.'},
- {t:'Sanoin, ettei kannattanut mennä tähän laaksoon.'},
- {t:'Ammukset, vaihteisto... mikä näistä nyt räjähti?'},
- {t:'Nähdään Valhallassa. Ota kahvit mukaan.'},{t:'Pitäisikö minun ehkä siirtyä sivuun?'},
- {t:'Savuaa vähän...'},{t:'Nyt kaduttaa, etten lukenut käyttöohjetta.'},{t:'Voi ei, tämä oli vuokravaunu.'}
-];
 let quoteBag=[];
+let quoteLang='';
 function nextQuote(){
-  if(!quoteBag.length){quoteBag=QUOTES.slice();for(let i=quoteBag.length-1;i>0;i--){const j=rint(0,i);[quoteBag[i],quoteBag[j]]=[quoteBag[j],quoteBag[i]];}}
+  if(!quoteBag.length||quoteLang!==LANG){quoteLang=LANG;quoteBag=(I18N[LANG].quotes||I18N.fi.quotes).map(x=>({t:x[0],s:x[1]||''}));for(let i=quoteBag.length-1;i>0;i--){const j=rint(0,i);[quoteBag[i],quoteBag[j]]=[quoteBag[j],quoteBag[i]];}}
   return quoteBag.pop();
 }
 function chunks(t,n,pw,x,y){
@@ -438,8 +665,9 @@ function stepAir(t,dt){
 /* ====== Vahinko ja räjähdykset ====== */
 function applyDamage(t,amt,src,quiet){
   if(!t.alive||amt<=0)return 0;
+  if(t.mag>0&&src){t.mag=0;t.magAge=null;floatText(t.x,t.y-34,T('fx_magnet_down'),'#e599f7');}
   if(t.shield>0){const a=Math.min(t.shield,amt);t.shield-=a;amt-=a;t.flash=0.25;
-    if(t.shield<=0){floatText(t.x,t.y-26,'Kilpi rikki','#7fe3f0');}}
+    if(t.shield<=0){floatText(t.x,t.y-26,T('fx_shield_down'),'#7fe3f0');}}
   if(amt<=0)return 0;
   const dealt=Math.min(t.hp,amt);t.hp-=amt;
   if(src&&src!==t){src.money+=dealt*6;src.earn.dmg+=dealt*6;}
@@ -447,7 +675,7 @@ function applyDamage(t,amt,src,quiet){
   else floatText(t.x,t.y-26,'-'+Math.round(amt),'#ff6b6b');
   if(t.hp<=0&&t.alive){
     t.hp=0;t.alive=false;
-    if(src&&src!==t){src.money+=KILL_BONUS;src.kills++;src.earn.kills+=KILL_BONUS;src.earn.nk++;floatText(src.x,src.y-42,'+'+money(KILL_BONUS)+' tuho','#ffd27a');}
+    if(src&&src!==t){src.money+=KILL_BONUS;src.kills++;src.earn.kills+=KILL_BONUS;src.earn.nk++;floatText(src.x,src.y-42,'+'+money(KILL_BONUS)+' '+T('fx_kill'),'#ffd27a');}
     startDeath(t);
   }
   return dealt;
@@ -472,19 +700,20 @@ function doSplit(p){
     let vx,vy;
     if(s.rv>=60&&p.w.id==='funky'){const a=rnd(0,6.283),sp=rnd(30,s.s);vx=p.vx*.4+Math.cos(a)*sp*1.6;vy=Math.sin(a)*sp*1.6-20;}
     else{vx=p.vx+(i-c)*s.s;vy=Math.max(p.vy,0)+rnd(-6,6);}
-    projs.push({x:p.x,y:p.y,vx,vy,w:WID[s.id],owner:p.owner,t:0,hops:0,trail:[],main:!!p.main&&i===Math.floor(c)});
+    projs.push({x:p.x,y:p.y,vx,vy,w:WID[s.id],owner:p.owner,t:0,hops:0,trail:[],grp:p.grp,msd:p.msd,main:!!p.main&&i===Math.floor(c)});
   }
 }
 function impact(p){
   const w=p.w,x=p.x,y=p.y;
   if(p.main&&p.owner)p.owner.lastImp={x,y};
   if(p.main&&p.owner&&p.owner.lvl&&p.owner.lastAim)p.owner.mem={tid:p.owner.lastAim.tid,dx:p.owner.lastAim.tx-x};
+  if(w.mv==='laser'&&p.sx!=null)trails.push({pts:[p.sx,p.sy,x,y],life:.4,beam:1});
   switch(w.k){
     case 'std':explode(x,y,w.r,w.dmg,p.owner,w.col);break;
     case 'split':explode(x,y,22,30,p.owner,w.col);break;
     case 'leap':
       explode(x,y,w.r,w.dmg,p.owner,w.col);
-      if(p.hops>0)projs.push({x,y:y-4,vx:p.vx*.85,vy:-Math.max(Math.abs(p.vy),140)*.62,w,owner:p.owner,t:0.3,hops:p.hops-1,trail:[]});
+      if(p.hops>0)projs.push({x,y:y-4,vx:p.vx*.85,vy:-Math.max(Math.abs(p.vy),140)*.62,w,owner:p.owner,t:0.3,hops:p.hops-1,trail:[],grp:p.grp,msd:p.msd});
       break;
     case 'roll':rolls.push({x:clamp(x,2,W-3),y,vx:p.vx*.25,w,owner:p.owner,t:0,still:0});spawnBlast(x,y,6,'#ffe8a3');break;
     case 'dig':burrows.push({x,y,dx:p.vx*.4,dy:Math.max(Math.abs(p.vy),60),sp:90,dur:.75,t:0,carve:9,w,owner:p.owner,boom:false});sndBoom(14);break;
@@ -497,20 +726,68 @@ function impact(p){
   }
 }
 
+
+/* ====== Erikoisliikkeet: liito, drooni, magneettisuoja ====== */
+let MAG_R=72,MAG_A=.8;const DRONE_V=170;
+let grpN=0;
+function droneTarget(p){
+  const a0=Math.atan2(p.vy,p.vx);let best=null,bd=9;
+  for(const t of tanks){
+    if(!t.alive||t===p.owner)continue;
+    let d=Math.abs(Math.atan2(t.y-8-p.y,t.x-p.x)-a0);if(d>Math.PI)d=2*Math.PI-d;
+    if(d<bd){bd=d;best=t;}
+  }
+  return best;
+}
+function droneSteer(p,dt){
+  if(!p.tg||!p.tg.alive)p.tg=droneTarget(p);
+  if(!p.tg){p.lost=1;p.vy+=G*dt;return;}
+  const tx=p.tg.x,dx=tx-p.x,lift=clamp((Math.abs(dx)-40)*.4,0,90);
+  const ty=p.tg.y-8-lift;
+  let want=Math.atan2(ty-p.y,dx),cur=Math.atan2(p.vy,p.vx),d=want-cur;
+  while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+  const m=clamp(d,-2.4*dt,2.4*dt);cur+=m;
+  p.vx=Math.cos(cur)*DRONE_V;p.vy=Math.sin(cur)*DRONE_V;
+  if(Math.random()<.5)addPart({x:p.x,y:p.y,vx:rnd(-12,12),vy:rnd(-12,12),life:.35,max:.35,s:2,col:'#e599f7',t:'f'});
+}
+function magnetPush(p,dt){
+  for(const t of tanks){
+    if(!t.alive||t===p.owner)continue;
+    if(!(t.mag>0))continue;
+    const dx=p.x-t.x,dy=p.y-(t.y-8),d=Math.hypot(dx,dy);
+    if(d>MAG_R)continue;
+    if(p.msd==null)floatText(t.x,t.y-30,T('fx_magnet'),'#e599f7');
+    const sp=Math.hypot(p.vx,p.vy)||1,nx=-p.vy/sp,ny=p.vx/sp,k=1-d/MAG_R;
+    if(p.msd==null)p.msd=Math.sign(nx*dx+ny*dy)||((p.grp||0)%2?1:-1);
+    const mv=MAG_A*k*clamp(sp,150,500)*dt*p.msd;p.x+=nx*mv;p.y+=ny*mv;
+    if(Math.random()<.35)addPart({x:p.x,y:p.y,vx:rnd(-20,20),vy:rnd(-20,20),life:.3,max:.3,s:2,col:'#e599f7',t:'f'});
+  }
+}
+function moveProj(p,dt){
+  const mv=p.w.mv;
+  if(mv==='laser'){}
+  else if(mv==='drone'&&p.t<6.5&&!p.lost){if(p.t>.45)droneSteer(p,dt);}
+  else if(mv==='glide'&&p.vy>0&&p.t>.2){
+    p.vy=Math.min(p.vy+G*.22*dt,55);p.vx+=wind*dt*.6;p.vx-=p.vx*.25*dt;
+  }else{p.vy+=G*dt;p.vx+=wind*dt;}
+  magnetPush(p,dt);
+  p.x+=p.vx*dt;p.y+=p.vy*dt;
+}
+
 /* ====== Fysiikka ====== */
 function stepWorld(dt){
   time+=dt;
   for(let i=projs.length-1;i>=0;i--){
     const p=projs[i];p.t+=dt;
     const ox=p.x,oy=p.y;
-    p.vy+=G*dt;p.vx+=wind*dt;
-    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    moveProj(p,dt);
     if(wallMode===1){if(p.x<0){p.x=-p.x;p.vx=-p.vx;}else if(p.x>W){p.x=2*W-p.x;p.vx=-p.vx;}}
     else if(wallMode===2){if(p.x<0){p.x+=W;p.trail.length=0;}else if(p.x>=W){p.x-=W;p.trail.length=0;}}
     if((p.n=(p.n||0)+1)%4===0){p.trail.push(p.x,p.y);if(p.trail.length>56)p.trail.splice(0,2);}
     if(p.n%3===0&&p.w.id!=='tracer')addPart({x:p.x,y:p.y,vx:rnd(-8,8),vy:rnd(-8,8),life:.5,max:.5,s:2.2,col:'#bbb',t:'m',drag:2});
     if((wallMode===0&&(p.x<-40||p.x>W+40))||p.y>H+60||p.t>14){
       if(p.w.k==='tracer')trails.push({pts:p.trail.slice(),life:5,tr:1});
+      if(p.w.mv==='laser'&&p.sx!=null)trails.push({pts:[p.sx,p.sy,p.x,p.y],life:.4,beam:1});
       projs.splice(i,1);continue;}
     if(p.w.k==='split'&&p.vy>0&&p.t>.2){doSplit(p);projs.splice(i,1);continue;}
     let hit=false;
@@ -666,9 +943,32 @@ function drawTank(t){
     ctx.fillStyle='rgba(80,210,235,'+(.1+.1*k)+')';ctx.strokeStyle='rgba(140,240,255,'+(.45+.3*pul)+')';ctx.lineWidth=1.6;
     ctx.beginPath();ctx.arc(t.x,t.y-8,16,0,6.283);ctx.fill();ctx.stroke();
   }
+  if(t.mag>0){
+    const ph=time*1.6;
+    ctx.save();ctx.strokeStyle='rgba(218,119,242,.55)';ctx.fillStyle='rgba(218,119,242,.07)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.arc(t.x,t.y-8,MAG_R,0,6.283);ctx.fill();ctx.setLineDash([6,8]);ctx.lineDashOffset=-ph*14;ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#e599f7';
+    for(let i=0;i<t.mag;i++){const a=ph+i*2.094;ctx.beginPath();ctx.arc(t.x+Math.cos(a)*22,t.y-8+Math.sin(a)*22,2.6,0,6.283);ctx.fill();}
+    ctx.restore();
+  }
 }
 function drawProj(p){
   const w=p.w,big=(w.r||0)>=50?4.4:3.2;
+  if(w.mv==='laser'){
+    const l=Math.hypot(p.vx,p.vy)||1,ex=p.x-p.vx/l*90,ey=p.y-p.vy/l*90;
+    ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+    ctx.strokeStyle='rgba(255,77,141,.35)';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(p.x,p.y);ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(p.x,p.y);ctx.stroke();
+    ctx.globalCompositeOperation='source-over';return;
+  }
+  if(w.mv==='drone'||w.mv==='glide'){
+    const a=Math.atan2(p.vy,p.vx);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);
+    ctx.fillStyle=w.col;ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=.8;
+    if(w.mv==='glide'){ctx.beginPath();ctx.moveTo(6,0);ctx.lineTo(-4,-2);ctx.lineTo(-6,-9);ctx.lineTo(-2,0);ctx.lineTo(-6,9);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();ctx.stroke();}
+    else{ctx.fillRect(-5,-2.5,10,5);ctx.strokeRect(-5,-2.5,10,5);ctx.strokeStyle=w.col;ctx.lineWidth=1.4;
+      const rt=Math.sin(time*80)*5;ctx.beginPath();ctx.moveTo(-3,-4);ctx.lineTo(-3+rt,-4);ctx.moveTo(3,4);ctx.lineTo(3-rt,4);ctx.stroke();}
+    ctx.restore();return;
+  }
   if(p.trail.length>3){
     ctx.lineCap='round';
     const n=p.trail.length/2;
@@ -716,7 +1016,7 @@ function drawHud(){
   ctx.textAlign='center';
   ctx.fillStyle='rgba(10,14,22,.6)';rr(W/2-70,wy-13,140,26,13);ctx.fill();
   ctx.fillStyle='#e9eef7';ctx.font='600 16px Inter,system-ui,sans-serif';
-  ctx.fillText('Tuuli '+Math.round(ww),W/2+14,wy+1);
+  ctx.fillText(T('wind')+' '+Math.round(ww),W/2+14,wy+1);
   const dir=wind>=0?1:-1,len=clamp(ww/70*34,3,34);
   ctx.strokeStyle='#ffd27a';ctx.fillStyle='#ffd27a';ctx.lineWidth=3;ctx.lineCap='round';
   const ax=W/2-40;
@@ -855,6 +1155,12 @@ function draw(){
   drawWalls();
   for(const tr of trails){
     const n=tr.pts.length/2;if(n<2)continue;
+    if(tr.beam){
+      const al=clamp(tr.life/.4,0,1);ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+      ctx.strokeStyle='rgba(255,77,141,'+al*.4+')';ctx.lineWidth=7*al;ctx.beginPath();ctx.moveTo(tr.pts[0],tr.pts[1]);ctx.lineTo(tr.pts[2],tr.pts[3]);ctx.stroke();
+      ctx.strokeStyle='rgba(255,255,255,'+al+')';ctx.lineWidth=1.8*al+.4;ctx.beginPath();ctx.moveTo(tr.pts[0],tr.pts[1]);ctx.lineTo(tr.pts[2],tr.pts[3]);ctx.stroke();
+      ctx.globalCompositeOperation='source-over';continue;
+    }
     ctx.strokeStyle='rgba(255,255,255,'+clamp(tr.life/3,0,.7)+')';ctx.lineWidth=1.4;ctx.setLineDash([5,5]);
     ctx.beginPath();ctx.moveTo(tr.pts[0],tr.pts[1]);for(let i=1;i<n;i++)ctx.lineTo(tr.pts[i*2],tr.pts[i*2+1]);ctx.stroke();ctx.setLineDash([]);
   }
@@ -890,18 +1196,20 @@ function draw(){
 /* aN/pN: tähtäysvirhe, wk: tuulen tuntemus, aS/pS: hakuaskeleet, mem: edellisen osuman korjaus,
    sh: kilven käyttö, think: miettimisaika, roll: osaa käyttää vierittäjiä */
 const LV=[null,
- {aN:13,pN:20,wk:0,aS:4,pS:8,mem:0,sh:0,think:1.5,roll:0},
- {aN:6,pN:9,wk:.2,aS:3,pS:6,mem:0,sh:.2,think:1.1,roll:0},
- {aN:3,pN:5,wk:.6,aS:2,pS:4,mem:.6,sh:.5,think:.8,roll:1},
- {aN:1.5,pN:2.5,wk:1,aS:1,pS:3,mem:.4,sh:.8,think:.6,roll:1},
- {aN:.35,pN:.8,wk:1,aS:1,pS:2,mem:0,sh:1,think:.5,roll:1}];
+ {aN:17,pN:26,wk:0,aS:4,pS:8,mem:0,sh:0,think:1.7,roll:0},
+ {aN:8.5,pN:12.5,wk:.15,aS:3,pS:6,mem:0,sh:.15,think:1.3,roll:0},
+ {aN:4.5,pN:7,wk:.5,aS:2,pS:4,mem:.5,sh:.4,think:1,roll:1},
+ {aN:2.4,pN:4,wk:.85,aS:1,pS:3,mem:.4,sh:.7,think:.8,roll:1},
+ {aN:.8,pN:1.6,wk:1,aS:1,pS:2,mem:0,sh:.9,think:.6,roll:1}];
 function tipFor(t,a){const r=a*Math.PI/180;return {x:t.x+Math.cos(r)*17,y:t.y-9-Math.sin(r)*17};}
-function simShot(x0,y0,ang,pow,wnd){
+function simShot(x0,y0,ang,pow,wnd,mv){
   const a=ang*Math.PI/180,v=pow*VM,dt=1/120;
   let x=x0,y=y0,vx=Math.cos(a)*v,vy=-Math.sin(a)*v;
   for(let n=0;n<1800;n++){
     const ox=x,oy=y;
-    vy+=G*dt;vx+=wnd*dt;x+=vx*dt;y+=vy*dt;
+    if(mv==='glide'&&vy>0&&n*dt>.2){vy=Math.min(vy+G*.22*dt,55);vx+=wnd*dt*.6;vx-=vx*.25*dt;}
+    else{vy+=G*dt;vx+=wnd*dt;}
+    x+=vx*dt;y+=vy*dt;
     if(wallMode===1){if(x<0){x=-x;vx=-vx;}else if(x>W){x=2*W-x;vx=-vx;}}
     else if(wallMode===2){if(x<0)x+=W;else if(x>=W)x-=W;}
     if((wallMode===0&&(x<-40||x>W+40))||y>H+60)return {x,y,vx,out:true};
@@ -927,12 +1235,12 @@ function simRoll(x,y,vx,self){
   }
   return {x,y:y+3};
 }
-function solveShot(t,target,wnd,aS,pS,pmax,roll){
+function solveShot(t,target,wnd,aS,pS,pmax,roll,mv){
   let best=null;
   const farSelf=Math.hypot(target.x-t.x,target.y-t.y)>70;
   const test=(a,p)=>{
     const tip=tipFor(t,a);
-    let r=simShot(tip.x,tip.y,a,p,wnd);
+    let r=simShot(tip.x,tip.y,a,p,wnd,mv);
     if(roll&&!r.out)r=simRoll(r.x,r.y,r.vx*.25,t);
     let e=Math.hypot(r.x-target.x,r.y-target.y);
     if(r.out)e+=500;
@@ -953,8 +1261,15 @@ function aiWeapons(t){
   return WP.filter(w=>!w.hid&&(t.inv[w.id]>0||w.inf)&&kinds.includes(w.k)&&(w.dmg>0||w.k==='split'||w.k==='fire'));
 }
 function wPower(w){return w.k==='split'?(w.sp.s>=40?250:150):w.k==='fire'?w.fdps*w.ttl*.8:(w.dmg||0)+(w.r||0)*.5;}
+function losClear(t,target){
+  const a=Math.atan2(-(target.y-6-(t.y-9)),target.x-t.x),tip=tipFor(t,a*180/Math.PI);
+  const dx=target.x-tip.x,dy=target.y-6-tip.y,n=Math.ceil(Math.hypot(dx,dy)/4);
+  for(let i=1;i<n;i++){if(solid(tip.x+dx*i/n,tip.y+dy*i/n))return false;}
+  return true;
+}
 function aiChooseWeapon(t,target){
-  const L=t.lvl,list=aiWeapons(t),base=WID.baby;
+  const L=t.lvl,base=WID.baby,los=losClear(t,target);
+  const list=aiWeapons(t).filter(w=>w.mv!=='laser'||los);
   if(L===1)return Math.random()<.8?base:pick(list);
   if(L===2)return Math.random()<.5?base:pick(list);
   const dist=Math.abs(target.x-t.x);
@@ -985,6 +1300,7 @@ function aiStart(t){
   if(t.shield<=0&&Math.random()<sp){
     if(t.inv.heavy_shield>0)ai.acts.push('heavy_shield');else if(t.inv.shield>0)ai.acts.push('shield');
   }
+  if(t.mag<=0&&t.inv.magnet>0&&Math.random()<.4+sp*.5)ai.acts.push('magnet');
   if(t.hp<=55&&t.inv.repair>0&&t.lvl>=2)ai.acts.push('repair');
 }
 function aiPlan(t){
@@ -994,9 +1310,15 @@ function aiPlan(t){
   let tp={x:target.x,y:target.y-6};
   if(t.mem&&t.mem.tid===target.i&&lv.mem>0)tp.x+=clamp(t.mem.dx,-120,120)*lv.mem;
   const wnd=wind*lv.wk;
-  const s=solveShot(t,tp,wnd,lv.aS,lv.pS,cap,w.k==='roll');
+  let s;
+  if(w.mv==='laser'){
+    const a0=Math.atan2(-(tp.y-(t.y-9)),tp.x-t.x)*180/Math.PI,tip=tipFor(t,a0);
+    s={a:Math.atan2(-(tp.y-tip.y),tp.x-tip.x)*180/Math.PI,p:cap};
+  }else if(w.mv==='drone')s={a:target.x>=t.x?62:118,p:cap};
+  else s=solveShot(t,tp,wnd,lv.aS,lv.pS,cap,w.k==='roll',w.mv);
   let ang=s.a+gauss()*lv.aN,pow=s.p+gauss()*lv.pN;
-  if(t.lvl===1&&Math.random()<.15){ang=rnd(20,160);pow=rnd(30,100);}
+  if(w.mv==='laser'||w.mv==='drone'){pow=cap;if(w.mv==='drone')ang=s.a+gauss()*lv.aN*.5;}
+  if(t.lvl===1&&Math.random()<.2){ang=rnd(20,160);pow=rnd(30,100);}
   return {ang:clamp(ang,0,180),pow:clamp(pow,5,cap),w,target};
 }
 function aiUpdate(dt){
@@ -1033,7 +1355,7 @@ function aiBuy(t){
     let wsum=0;const ws=c.map(w=>{
       let v=1;
       if(L>=3)v+=w.price/4000;
-      if(L>=3&&(w.k==='shield'||w.k==='chute'||w.k==='repair'))v+=3;
+      if(L>=3&&(w.k==='shield'||w.k==='chute'||w.k==='repair'||w.k==='magnet'))v+=3;
       if(L<=2)v=1/(1+w.price/5000);
       wsum+=v;return v;});
     let r=Math.random()*wsum,k=0;
@@ -1190,8 +1512,8 @@ function showFinale(){
   fwTimer=0;finaleT=0;fwBag=[];shake=0;cam.z=1;cam.x=W/2;cam.y=H/2;camF=null;aimDrag=null;
   podium=tanks.slice().sort((a,b)=>b.wins-a.wins||b.money-a.money).slice(0,3);
   for(let i=0;i<4;i++)setTimeout(()=>{if(phase==='finale')launchFw(nextFwType());},i*250);
-  showOv('<div class="card"><h1>Peli ohi</h1><h2>Voittaja: <span style="color:'+podium[0].col+'">'+esc(podium[0].name)+'</span></h2>'+tableHtml(false)+
-    '<button class="go" id="again">UUSI PELI</button></div>','finale');
+  showOv('<div class="card"><h1>'+T('fin_title')+'</h1><h2>'+T('fin_winner')+': <span style="color:'+podium[0].col+'">'+esc(podium[0].name)+'</span></h2>'+tableHtml(false)+
+    '<button class="go" id="again">'+T('b_newgame')+'</button></div>','finale');
   $('again').onclick=()=>{audio();backdrop();showSetup();};
 }
 
@@ -1211,11 +1533,11 @@ function syncUI(){
   elPow.max=cap;
   elAng.value=Math.round(t.ang);elPow.value=Math.round(t.pow);
   $('angV').textContent=Math.round(t.ang);
-  $('powV').innerHTML=Math.round(t.pow)+(cap<100?'<small>maks '+cap+'</small>':'');
+  $('powV').innerHTML=Math.round(t.pow)+(cap<100?'<small>'+T('powmax',cap)+'</small>':'');
   const cnt=w.inf?'∞':'×'+(t.inv[w.id]||0);
-  $('wName').innerHTML='<span style="color:'+w.col+'">'+w.n+'</span> '+cnt+'<small>'+w.d+'</small>';
-  const use=w.k==='shield'||w.k==='repair';
-  elFire.textContent=use?'KÄYTÄ':'TULTA!';
+  $('wName').innerHTML='<span style="color:'+w.col+'">'+esc(wn(w))+'</span> '+cnt+'<small>'+esc(wd(w))+'</small>';
+  const use=w.k==='shield'||w.k==='repair'||w.k==='magnet';
+  elFire.textContent=use?T('b_use'):T('b_fire');
   for(const id of ['ang','pow','aDn','aUp','pDn','pUp','wPrev','wNext','fire'])$(id).disabled=!h;
 }
 function adj(key,d){
@@ -1231,19 +1553,20 @@ function cycleWeapon(d){
 }
 function useItem(t){
   const w=WID[t.sel];
-  if(w.k==='shield'){t.shield=Math.max(t.shield,w.amt);floatText(t.x,t.y-28,'Kilpi päällä','#7fe3f0');}
+  if(w.k==='shield'){t.shield=Math.max(t.shield,w.amt);t.shAge=0;floatText(t.x,t.y-28,T('fx_shield_on'),'#7fe3f0');}
+  else if(w.k==='magnet'){t.mag=1;t.magAge=0;floatText(t.x,t.y-28,T('fx_magnet_on'),'#e599f7');}
   else if(w.k==='repair'){t.hp=Math.min(100,t.hp+w.amt);floatText(t.x,t.y-28,'+'+w.amt,'#58d68d');}
   t.inv[w.id]--;t.sel='baby';
 }
 function doFire(t){
   const w=WID[t.sel];
-  if(w.k==='shield'||w.k==='repair'){useItem(t);lastUI='';syncUI();return;}
+  if(w.k==='shield'||w.k==='repair'||w.k==='magnet'){useItem(t);lastUI='';syncUI();return;}
   if(!w.inf){t.inv[w.id]--;if(t.inv[w.id]<=0)t.sel='baby';}
   t.pow=Math.min(t.pow,maxPow(t));
   t.last={ang:Math.round(t.ang),pow:Math.round(t.pow)};
-  const tip=barrelTip(t),a=t.ang*Math.PI/180,v=t.pow*VM;
+  const tip=barrelTip(t),a=t.ang*Math.PI/180,v=w.mv==='laser'?900:w.mv==='drone'?DRONE_V:t.pow*VM;
   camF={x:tip.x,y:tip.y};aimDrag=null;
-  projs.push({x:tip.x,y:tip.y,vx:Math.cos(a)*v,vy:-Math.sin(a)*v,w,owner:t,t:0,hops:w.hops||0,trail:[],main:true});
+  projs.push({x:tip.x,y:tip.y,sx:tip.x,sy:tip.y,vx:Math.cos(a)*v,vy:-Math.sin(a)*v,w,owner:t,t:0,hops:w.hops||0,trail:[],main:true,grp:++grpN});
   for(let i=0;i<8;i++)addPart({x:tip.x,y:tip.y,vx:Math.cos(a)*rnd(20,90)+rnd(-20,20),vy:-Math.sin(a)*rnd(20,90)+rnd(-20,20),life:.35,max:.35,s:rnd(1.5,3),col:'#ffe08a',t:'f'});
   shake=Math.max(shake,1.5);sndShot();
   phase='fly';settle=0;lastUI='';syncUI();
@@ -1290,7 +1613,7 @@ cv.addEventListener('pointermove',e=>{if(dragId===e.pointerId)dragAim(e);});
 for(const ev of ['pointerup','pointercancel'])cv.addEventListener(ev,e=>{if(dragId===e.pointerId){dragId=null;aimDrag=null;}});
 let speed=1;
 $('btnSpd').addEventListener('click',()=>{speed=speed===1?3:speed===3?8:1;$('btnSpd').textContent='×'+speed;});
-function camLabel(){const b=$('btnCam');b.classList.toggle('off',!camOn);b.textContent=camOn?'Kamera ✓':'Kamera ✗';b.setAttribute('aria-pressed',camOn?'true':'false');}
+function camLabel(){const b=$('btnCam');b.classList.toggle('off',!camOn);b.textContent=T('b_cam')+(camOn?' ✓':' ✗');b.setAttribute('aria-pressed',camOn?'true':'false');}
 $('btnCam').addEventListener('click',()=>{camOn=!camOn;cfg.cam=camOn?1:0;saveCfg();camLabel();});
 camLabel();
 addEventListener('keydown',e=>{
@@ -1318,15 +1641,23 @@ function layoutTanks(){
     t.y=surf(t.x);
   });
 }
+function isDesktop(){
+  try{return matchMedia('(hover:hover) and (pointer:fine)').matches&&Math.min(innerWidth,screen.width||9999)>=1000;}catch(e){return false;}
+}
+function slotCount(){return isDesktop()?8:4;}
 function fitWorld(){
-  const r=$('stage').getBoundingClientRect();
-  const w=clamp(Math.round(H*r.width/Math.max(1,r.height)),480,960);
-  if(w!==W||!bgCv){W=w;ground=new Float32Array(W);mask=new Uint8Array(W*H);bgCv=null;tCv=null;cv.width=W*S;cv.height=H*S;cam.x=W/2;cam.y=H/2;}
+  const r=$('stage').getBoundingClientRect(),asp=r.width/Math.max(1,r.height);
+  let h=450,w;
+  if(isDesktop()){h=clamp(Math.round(r.height/1.15),450,760);w=clamp(Math.round(h*asp),480,1500);}
+  else w=clamp(Math.round(450*asp),480,960);
+  if(w!==W||h!==H||!bgCv){W=w;H=h;ground=new Float32Array(W);mask=new Uint8Array(W*H);bgCv=null;tCv=null;cv.width=W*S;cv.height=H*S;cam.x=W/2;cam.y=H/2;}
 }
 function startRound(){
   fitWorld();genTerrain();th=pick(THEMES);buildSky();
   projs=[];rolls=[];burrows=[];fires=[];blasts=[];parts=[];texts=[];trails=[];pending=[];shake=0;ai=null;
-  for(const t of tanks){t.alive=true;t.hp=100;t.dHp=100;t.shield=0;t.fall=0;t.vy=0;t.mem=null;t.lastAim=null;t.acc=0;t.sel='baby';t.last=null;t.lastImp=null;t.say=null;t.dying=0;t.air=null;t.rot=0;t.smoulder=0;t.earn={dmg:0,kills:0,nk:0,bonus:0};}
+  for(const t of tanks){
+    t.shield=0;t.shAge=null;t.mag=0;t.magAge=null;
+    t.alive=true;t.hp=100;t.dHp=100;t.fall=0;t.vy=0;t.mem=null;t.lastAim=null;t.acc=0;t.sel='baby';t.last=null;t.lastImp=null;t.say=null;t.dying=0;t.air=null;t.rot=0;t.smoulder=0;t.earn={dmg:0,kills:0,nk:0,bonus:0};}
   layoutTanks();commitTerrain();
   for(const t of tanks)t.y=ground[clamp(Math.round(t.x),0,W-1)];
   camF=null;cam.z=1;cam.x=W/2;cam.y=H/2;aimDrag=null;
@@ -1334,9 +1665,23 @@ function startRound(){
   cur=rint(0,tanks.length-1);
   hideOv();beginTurn();
 }
+/* Suojat vanhenevat omilla vuoroilla: yksi kierros = kaikki ovat ampuneet ja oma vuoro alkaa uudelleen */
+function ageDefences(t){
+  if(t.shAge!=null){
+    t.shAge++;
+    if(t.shAge===2&&t.shield>0){t.shield=Math.round(t.shield*.5);floatText(t.x,t.y-28,T('fx_shield_weak'),'#7fe3f0');}
+    else if(t.shAge>=4){if(t.shield>0)floatText(t.x,t.y-28,T('fx_shield_down'),'#7fe3f0');t.shield=0;t.shAge=null;}
+  }
+  if(t.shield<=0)t.shAge=null;
+  if(t.magAge!=null){
+    t.magAge++;
+    if(t.magAge>=3){if(t.mag>0)floatText(t.x,t.y-34,T('fx_magnet_down'),'#e599f7');t.mag=0;t.magAge=null;}
+  }
+}
 function beginTurn(){
   phase='aim';settle=0;lastUI='';
   const t=tanks[cur];
+  ageDefences(t);
   if(t.lvl)aiStart(t);
   syncUI();
 }
@@ -1350,21 +1695,21 @@ function endTurn(){
 function earnTotal(t){return t.earn.dmg+t.earn.kills+t.earn.bonus;}
 function earnDetail(t){
   const a=[];
-  if(t.earn.dmg>0)a.push('vahinko '+money(t.earn.dmg));
-  if(t.earn.nk>0)a.push(t.earn.nk+(t.earn.nk>1?' tuhoa ':' tuho ')+money(t.earn.kills));
-  if(t.earn.bonus>0)a.push('palkkio '+money(t.earn.bonus));
+  if(t.earn.dmg>0)a.push(T('earn_dmg',money(t.earn.dmg)));
+  if(t.earn.nk>0)a.push(T(t.earn.nk>1?'earn_killn':'earn_kill1',t.earn.nk,money(t.earn.kills)));
+  if(t.earn.bonus>0)a.push(T('earn_bonus',money(t.earn.bonus)));
   return a.join(' · ');
 }
 function tableHtml(withEarn){
   const list=tanks.slice().sort((a,b)=>b.wins-a.wins||b.money-a.money);
   const dot=t=>'<i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+t.col+'"></i> ';
   if(!withEarn){
-    return '<table><tr><th>Pelaaja</th><th>Voitot</th><th>Rahat</th></tr>'+
+    return '<table><tr><th>'+T('th_player')+'</th><th>'+T('th_wins')+'</th><th>'+T('th_money')+'</th></tr>'+
       list.map(t=>'<tr><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+money(t.money)+'</td></tr>').join('')+'</table>';
   }
-  return '<table><tr><th>Pelaaja</th><th>Voitot</th><th>Rahat</th><th style="text-align:right">Kierros</th></tr>'+
+  return '<table><tr><th>'+T('th_player')+'</th><th>'+T('th_wins')+'</th><th>'+T('th_money')+'</th><th style="text-align:right">'+T('th_round')+'</th></tr>'+
     list.map(t=>'<tr class="main"><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+money(t.money)+'</td><td class="earn">+'+money(earnTotal(t))+'</td></tr>'+
-      '<tr class="sub"><td colspan="4">'+(earnDetail(t)||'ei ansioita')+'</td></tr>').join('')+'</table>';
+      '<tr class="sub"><td colspan="4">'+(earnDetail(t)||T('earn_none'))+'</td></tr>').join('')+'</table>';
 }
 function roundEnd(w){
   phase='over';
@@ -1377,9 +1722,9 @@ function roundEnd(w){
   const last=round>=maxRounds;
   if(last)clearSave();else saveGame(round+1);
   setTimeout(()=>{
-    showOv('<div class="card"><h2>Kierros '+round+'/'+maxRounds+': '+(w?esc(w.name)+' voitti':'tasapeli')+'</h2>'+
-      '<p>Jokainen saa $3 000 palkkion, jäljessä olevat lisää (enintään $4 500) ja voittaja $6 000. Jokaisesta tuhotusta vihollisesta saa '+money(KILL_BONUS)+' ja vahingosta rahaa.</p>'+
-      tableHtml(true)+'<button class="go" id="nx">'+(last?'PALKINTOKOROKKEELLE':'KAUPPA JA SEURAAVA KIERROS')+'</button></div>');
+    showOv('<div class="card"><h2>'+(w?T('re_win',round,maxRounds,esc(w.name)):T('re_tie',round,maxRounds))+'</h2>'+
+      '<p>'+T('re_info',money(3000),money(4500),money(6000),money(KILL_BONUS))+'</p>'+
+      tableHtml(true)+'<button class="go" id="nx">'+(last?T('b_podium'):T('b_shop_next'))+'</button></div>');
     $('nx').onclick=()=>{audio();if(last)showFinale();else{round++;beginShops();}};
   },1100);
 }
@@ -1402,39 +1747,44 @@ function beginShops(){
   phase='shop';openShop();
 }
 const SHOP_CATS=[
- {id:'bombs',n:'Pommit',ids:['missile','baby_nuke','nuke','mega_nuke','bunker']},
- {id:'split',n:'Jakautuvat',ids:['cluster','mirv','funky','deaths_head']},
- {id:'special',n:'Erikoisaseet',ids:['leap','baby_roller','roller','heavy_roller','napalm','hot_napalm','digger','dirt']},
- {id:'shields',n:'Suojat',ids:['shield','heavy_shield']},
- {id:'gear',n:'Varusteet',ids:['repair','parachute','tracer']}
+ {id:'bombs',k:'cat_bombs',ids:['missile','baby_nuke','nuke','mega_nuke','bunker']},
+ {id:'paths',k:'cat_paths',ids:['laser','glider','drone']},
+ {id:'split',k:'cat_split',ids:['cluster','mirv','funky','deaths_head']},
+ {id:'special',k:'cat_special',ids:['leap','baby_roller','roller','heavy_roller','napalm','hot_napalm','digger','dirt']},
+ {id:'shields',k:'cat_shields',ids:['shield','heavy_shield','magnet']},
+ {id:'gear',k:'cat_gear',ids:['repair','parachute','tracer']}
 ];
 let shopTab='bombs';
 function statLine(w){
-  if(w.k==='shield')return 'Imee '+w.amt+' vahinkoa';
-  if(w.k==='repair')return '+'+w.amt+' kestävyyttä';
-  if(w.k==='chute')return 'Estää putoamisvahingon';
-  if(w.k==='tracer')return 'Ei vahinkoa';
-  if(w.k==='split'){const c=WID[w.sp.id];return w.sp.n+' osaa · säde '+c.r+' · vahinko '+c.dmg+' / osa';}
-  if(w.k==='fire')return 'Säde '+w.r+' · '+w.fdps+' vahinkoa/s · '+w.ttl+' s';
-  if(w.k==='dirt')return 'Säde '+w.r+' · ei vahinkoa';
-  if(w.k==='dig')return 'Kaivaa tunnelin';
-  return 'Säde '+w.r+' · vahinko '+w.dmg;
+  if(w.k==='shield')return T('st_shield',w.amt);
+  if(w.k==='magnet')return T('st_magnet');
+  if(w.k==='repair')return T('st_repair',w.amt);
+  if(w.k==='chute')return T('st_chute');
+  if(w.k==='tracer')return T('st_tracer');
+  if(w.k==='split'){const c=WID[w.sp.id];return T('st_split',w.sp.n,c.r,c.dmg);}
+  if(w.k==='fire')return T('st_fire',w.r,w.fdps,w.ttl);
+  if(w.k==='dirt')return T('st_dirt',w.r);
+  if(w.k==='dig')return T('st_dig');
+  if(w.mv==='laser')return T('st_laser',w.r,w.dmg);
+  if(w.mv==='glide')return T('st_glide',w.r,w.dmg);
+  if(w.mv==='drone')return T('st_drone',w.r,w.dmg);
+  return T('st_std',w.r,w.dmg);
 }
 function openShop(keepScroll){
   const t=shopQ[shopI],old=ov.querySelector('.shoplist');const sc=keepScroll&&old?old.scrollTop:0;
   const cat=SHOP_CATS.find(c=>c.id===shopTab)||SHOP_CATS[0];
-  let h='<div class="card shop"><div class="shophead"><h2>Kauppa · <span style="color:'+t.col+'">'+esc(t.name)+'</span></h2>'+
-    '<div class="money">'+money(t.money)+'</div><p style="margin:2px 0 6px">Kierros '+round+'/'+maxRounds+'. Napauta tuotetta ostaaksesi.</p><div class="tabs" role="tablist">'+
+  let h='<div class="card shop"><div class="shophead"><h2>'+T('shop_title')+' · <span style="color:'+t.col+'">'+esc(t.name)+'</span></h2>'+
+    '<div class="money">'+money(t.money)+'</div><p style="margin:2px 0 6px">'+T('shop_round',round,maxRounds)+'</p><div class="tabs" role="tablist">'+
     SHOP_CATS.map(c=>{const own=c.ids.reduce((a,id)=>a+(t.inv[id]||0),0);
-      return '<button class="tab" role="tab" data-cat="'+c.id+'" aria-selected="'+(c.id===cat.id)+'">'+c.n+(own?'<i>'+own+'</i>':'')+'</button>';}).join('')+
+      return '<button class="tab" role="tab" data-cat="'+c.id+'" aria-selected="'+(c.id===cat.id)+'">'+T(c.k)+(own?'<i>'+own+'</i>':'')+'</button>';}).join('')+
     '</div></div><div class="shoplist">';
   for(const w of cat.ids.map(id=>WID[id]).sort((a,b)=>a.price-b.price)){
     const own=t.inv[w.id]||0,can=t.money>=w.price&&own<99;
     h+='<div class="item" data-id="'+w.id+'" style="opacity:'+(can?1:.45)+';cursor:pointer"><i style="background:'+w.col+'"></i>'+
-      '<div class="nm"><b>'+w.n+'</b><small>'+w.d+'</small><small class="st">'+statLine(w)+'</small></div>'+
-      '<div class="pr">'+money(w.price)+'<br><small style="color:var(--muted)">+'+w.bundle+' · omistat '+own+'</small></div></div>';
+      '<div class="nm"><b>'+esc(wn(w))+'</b><small>'+esc(wd(w))+'</small><small class="st">'+esc(statLine(w))+'</small></div>'+
+      '<div class="pr">'+money(w.price)+'<br><small style="color:var(--muted)">+'+w.bundle+' · '+T('shop_own',own)+'</small></div></div>';
   }
-  h+='</div><button class="go" id="done">'+(shopI<shopQ.length-1?'VALMIS · SEURAAVA PELAAJA':'ALOITA KIERROS')+'</button></div>';
+  h+='</div><button class="go" id="done">'+(shopI<shopQ.length-1?T('b_next_player'):T('b_start_round'))+'</button></div>';
   showOv(h);
   ov.querySelector('.shoplist').scrollTop=sc;
   ov.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{shopTab=el.dataset.cat;audio();openShop();});
@@ -1444,57 +1794,81 @@ function openShop(keepScroll){
   });
   $('done').onclick=()=>{audio();if(shopI<shopQ.length-1){shopI++;openShop();}else startRound();};
 }
+function setLang(c){
+  LANG=c;try{localStorage.setItem('tsota2lang',c);}catch(e){}
+  applyStatic();
+}
+function applyStatic(){
+  document.documentElement.lang=LANG;document.title=T('doc_title');
+  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;el.textContent=T(k==='hint'&&isDesktop()?'hint_pc':k);});
+  document.querySelectorAll('[data-ta]').forEach(el=>el.setAttribute('aria-label',T(el.dataset.ta)));
+  camLabel();lastUI='';if(tanks.length&&phase!=='menu')syncUI();
+}
+function langPicker(){
+  return '<div class="tabs langs" role="tablist" aria-label="'+T('slot_lang')+'">'+LANGS.map(([c,n])=>
+    '<button class="tab" role="tab" data-lang="'+c+'" aria-selected="'+(c===LANG)+'">'+n+'</button>').join('')+'</div>';
+}
+function bindLang(again){ov.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{setLang(b.dataset.lang);audio();again();});}
+function readSetupForm(){
+  if(!$('s0'))return;
+  const n=slotCount();
+  for(let i=0;i<n;i++){cfg.slots[i]=+$('s'+i).value;cfg.names[i]=cleanName($('n'+i).value);}
+  cfg.rounds=+$('rds').value;cfg.walls=+$('wl').value;
+}
 function showSetup(){
   $('app').classList.remove('fin');
   phase='menu';paused=false;
+  const n=slotCount();
   const opt=(v,cur,s)=>'<option value="'+v+'"'+(v===cur?' selected':'')+'>'+s+'</option>';
-  let h='<div class="card"><h1>TYKISTÖSOTA 2.0</h1><p>Vuoropohjainen tykistöpeli. Säädä kulma ja voima, huomioi tuuli ja tuhoa vastustajat. Voit pelata useammalla ihmisellä samalla laitteella.</p>';
-  for(let i=0;i<4;i++){
-    h+='<div class="slot"><i style="background:'+COLORS[i]+'"></i><span>Pelaaja '+(i+1)+'</span><select id="s'+i+'">'+
-      opt(-1,cfg.slots[i],'Ei pelaajaa')+opt(0,cfg.slots[i],'Ihminen')+
-      LEVELS.map((n,k)=>opt(k+1,cfg.slots[i],'Tietokone: '+n)).join('')+'</select></div>'+
-      '<div class="slot namerow" id="nr'+i+'"'+(cfg.slots[i]===0?'':' hidden')+'><i></i><span>Nimi</span>'+
-      '<input type="text" id="n'+i+'" maxlength="14" autocomplete="off" placeholder="Pelaaja '+(i+1)+'" value="'+esc((cfg.names&&cfg.names[i])||'')+'"></div>';
+  let h='<div class="card">'+langPicker()+'<h1>'+T('title')+'</h1><p>'+T('setup_intro')+'</p>';
+  for(let i=0;i<n;i++){
+    h+='<div class="slot"><i style="background:'+COLORS[i]+'"></i><span>'+T('slot_player',i+1)+'</span><select id="s'+i+'">'+
+      opt(-1,cfg.slots[i],T('opt_none'))+opt(0,cfg.slots[i],T('opt_human'))+
+      [1,2,3,4,5].map(k=>opt(k,cfg.slots[i],T('opt_cpu',rankName(k)))).join('')+'</select></div>'+
+      '<div class="slot namerow" id="nr'+i+'"'+(cfg.slots[i]===0?'':' hidden')+'><i></i><span>'+T('slot_name')+'</span>'+
+      '<input type="text" id="n'+i+'" maxlength="14" autocomplete="off" placeholder="'+esc(T('ph_player',i+1))+'" value="'+esc((cfg.names&&cfg.names[i])||'')+'"></div>';
   }
-  h+='<div class="slot"><i style="background:var(--accent)"></i><span>Kierroksia</span><select id="rds">'+
-    [3,5,10,15].map(n=>opt(n,cfg.rounds,n)).join('')+'</select></div>'+
-    '<div class="slot"><i style="background:var(--accent)"></i><span>Seinät</span><select id="wl">'+
-    opt(0,cfg.walls,'Ei seiniä (ammus katoaa)')+opt(1,cfg.walls,'Kimpoavat')+opt(2,cfg.walls,'Kiertävät ympäri')+'</select></div>'+
-    '<p id="err" style="color:var(--danger);margin:6px 0 0"></p><button class="go" id="start">ALOITA PELI</button>';
+  h+='<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_rounds')+'</span><select id="rds">'+
+    [3,5,10,15].map(k=>opt(k,cfg.rounds,k)).join('')+'</select></div>'+
+    '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_walls')+'</span><select id="wl">'+
+    opt(0,cfg.walls,T('wall0'))+opt(1,cfg.walls,T('wall1'))+opt(2,cfg.walls,T('wall2'))+'</select></div>'+
+    '<p id="err" style="color:var(--danger);margin:6px 0 0"></p><button class="go" id="start">'+T('b_start')+'</button>';
   const sv=readSave();
-  if(sv)h+='<button class="go alt" id="resume">JATKA PELIÄ (kierros '+sv.round+'/'+sv.maxRounds+')</button>';
+  if(sv)h+='<button class="go alt" id="resume">'+T('b_resume',sv.round,sv.maxRounds)+'</button>';
   h+='</div>';
   showOv(h);
-  for(let i=0;i<4;i++)$('s'+i).onchange=()=>{$('nr'+i).hidden=+$('s'+i).value!==0;};
+  bindLang(()=>{readSetupForm();showSetup();});
+  for(let i=0;i<n;i++)$('s'+i).onchange=()=>{$('nr'+i).hidden=+$('s'+i).value!==0;};
   $('start').onclick=()=>{
     audio();
-    const sl=[0,1,2,3].map(i=>+$('s'+i).value);
-    cfg.names=[0,1,2,3].map(i=>cleanName($('n'+i).value));
-    if(sl.filter(v=>v>=0).length<2){$('err').textContent='Valitse vähintään kaksi pelaajaa.';return;}
-    cfg.slots=sl;cfg.rounds=+$('rds').value;cfg.walls=+$('wl').value;saveCfg();startGame();
+    readSetupForm();
+    if(cfg.slots.slice(0,n).filter(v=>v>=0).length<2){$('err').textContent=T('err_min2');return;}
+    saveCfg();startGame();
   };
   if(sv)$('resume').onclick=()=>{audio();resumeGame(sv);};
 }
 function showPause(){
-  showOv('<div class="card"><h2>Tauko</h2><button class="go" id="res">JATKA</button><button class="go alt" id="nw">UUSI PELI</button></div>');
+  showOv('<div class="card">'+langPicker()+'<h2>'+T('pause_title')+'</h2><button class="go" id="res">'+T('b_continue')+'</button><button class="go alt" id="nw">'+T('b_newgame')+'</button></div>');
+  bindLang(showPause);
   $('res').onclick=()=>{paused=false;hideOv();syncUI();};
   $('nw').onclick=()=>{paused=false;showSetup();};
 }
 function startGame(){
   tanks=[];
-  const act=cfg.slots.map((v,i)=>({v,i})).filter(o=>o.v>=0);
+  const n=slotCount();
+  const act=cfg.slots.slice(0,n).map((v,i)=>({v,i})).filter(o=>o.v>=0);
   const used=new Set();
   const hum=act.filter(o=>o.v===0).map(o=>{
-    let n=cleanName(cfg.names&&cfg.names[o.i])||'Pelaaja '+(o.i+1);
-    if(used.has(n.toLowerCase()))n=n.slice(0,12)+' '+(o.i+1);
-    used.add(n.toLowerCase());return {o,n};
+    let nm=cleanName(cfg.names&&cfg.names[o.i])||T('ph_player',o.i+1);
+    if(used.has(nm.toLowerCase()))nm=nm.slice(0,12)+' '+(o.i+1);
+    used.add(nm.toLowerCase());return {o,n:nm};
   });
   const leaders=drawLeaders(act.filter(o=>o.v>0).length,[...used]);
   let li=0;
   act.forEach(o=>{
     let name;
     if(o.v===0)name=hum.find(h=>h.o===o).n;
-    else name=LEVELS[o.v-1]+' '+leaders[li++];
+    else name=rankName(o.v)+' '+leaders[li++];
     tanks.push(makeTank(o.i,o.v,name));
   });
   maxRounds=cfg.rounds;round=1;wallMode=cfg.walls||0;clearSave();
@@ -1523,6 +1897,7 @@ function frame(ts){
   requestAnimationFrame(frame);
 }
 function backdrop(){fitWorld();genTerrain();th=pick(THEMES);buildSky();commitTerrain();}
+applyStatic();
 backdrop();
 showSetup();
 let rzT=0;
