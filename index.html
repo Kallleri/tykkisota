@@ -1,3 +1,10 @@
+<!doctype html>
+<html lang="fi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b0e14">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Tykistösota">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Tykistösota 2.0</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Inter:wght@400;600&display=swap">
 <style>
@@ -106,6 +113,7 @@ input[type=text]:focus-visible{outline:2px solid var(--accent2);outline-offset:2
 .slot.namerow i{background:transparent}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
 </style>
+</head><body>
 <div id="app">
   <div id="stage">
     <canvas id="cv"></canvas>
@@ -138,6 +146,12 @@ const rnd=(a,b)=>a+Math.random()*(b-a);
 const rint=(a,b)=>Math.floor(rnd(a,b+1));
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
+/* Simulaation siemennetty satunnaisuus (toistettava, moninpeliä varten). Kosmeettinen satunnaisuus käyttää Math.random-pohjaisia rnd/rint/pick-funktioita. */
+let _ss=1;
+function seedSim(s){_ss=(s>>>0)||1;}
+function sr(){_ss=(_ss+0x6D2B79F5)>>>0;let t=_ss;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;}
+const srnd=(a,b)=>a+sr()*(b-a),srint=(a,b)=>Math.floor(srnd(a,b+1)),spick=a=>a[Math.floor(sr()*a.length)];
+function mixSeed(a,b,c){let h=(a^Math.imul(b+1,0x9E3779B1)^Math.imul(c+7,0x85EBCA6B))>>>0;h=Math.imul(h^(h>>>16),0x45D9F3B)>>>0;return (h^(h>>>16))>>>0;}
 const gauss=()=>{let u=0;for(let i=0;i<4;i++)u+=Math.random();return (u-2)*1.732;};
 const I18N={fi:{},sv:{},en:{}};
 let LANG='fi';try{const l=localStorage.getItem('tsota2lang');if(l&&I18N[l])LANG=l;}catch(e){}
@@ -255,10 +269,10 @@ let th=THEMES[0],bgCv,tCv,tctx,speck=[],stars=[],terrDirty=true;
 function mkCanvas(){const c=document.createElement('canvas');c.width=W*S;c.height=H*S;return c;}
 function surf(x){return ground[clamp(Math.round(x),0,W-1)];}
 function genTerrain(){
-  const base=H*rnd(.56,.68),amp=rnd(.7,1.35),fr=[],ph=[],am=[];
+  const base=H*srnd(.56,.68),amp=srnd(.7,1.35),fr=[],ph=[],am=[];
   for(let i=0;i<5;i++){
-    fr.push((i+1)*rnd(.8,1.5)*Math.PI*2/W);ph.push(rnd(0,6.28));
-    am.push(H*.17*amp/(i*.9+1)*rnd(.6,1.2));
+    fr.push((i+1)*srnd(.8,1.5)*Math.PI*2/W);ph.push(srnd(0,6.28));
+    am.push(H*.17*amp/(i*.9+1)*srnd(.6,1.2));
   }
   for(let x=0;x<W;x++){let y=base;for(let i=0;i<5;i++)y+=Math.sin(x*fr[i]+ph[i])*am[i];ground[x]=clamp(y,H*.24,H*.88);}
   for(let p=0;p<2;p++)for(let x=1;x<W-1;x++)ground[x]=(ground[x-1]+ground[x]*2+ground[x+1])/4;
@@ -415,6 +429,10 @@ I18N.fi={
  pers_snip:"Tarkka-ampuja",pd_snip:"Tähtää erittäin tarkasti, säästää rahaa.",pers_trick:"Veijari",pd_trick:"Rakastaa erikoisaseita ja arvaamattomia siirtoja.",
  pers_aven:"Kostaja",pd_aven:"Kohdistaa tulensa viimeksi itseensä osuneeseen.",pers_tyc:"Rahamies",pd_tyc:"Ostaa kalleinta ja jahtaa rikkainta vastustajaa.",
  pers_bers:"Raivohirmu",pd_bers:"Ampuu aina suurimmalla, ei suojaudu, mutta tähtää huolimattomasti.",pers_tact:"Taktikko",pd_tact:"Tasapainoinen, käyttää laseria kun näköyhteys on.",
+ net_btn:"MONIPELI (BEETA)",net_title:"Moninpeli",net_intro:"Yksi laite luo huoneen ja muut liittyvät nelimerkkisellä koodilla. Vaatii verkkoyhteyden.",net_host:"LUO HUONE",net_join:"LIITY",net_back:"TAKAISIN",net_room:"Huonekoodi",
+ net_connecting:"Yhdistetään…",net_nohost:"Huonetta ei löytynyt tai yhteys ei muodostunut.",net_err:"Yhteysvirhe. Yritä uudelleen.",net_load_err:"Yhteyskirjastoa ei saatu ladattua. Tarkista verkko.",net_bad_code:"Koodissa on neljä merkkiä.",net_full:"Huone on täynnä.",
+ net_host_left:"Isäntä poistui tai yhteys katkesi.",net_code_is:"Huoneen koodi:",net_players:"Laitteet {0}/{1}",net_you:"sinä",net_host_tag:"isäntä",net_ready:"VALMIS",net_notready:"PERUUTA VALMIUS",net_start:"ALOITA",net_need2:"Tarvitaan vähintään kaksi laitetta.",net_wait_ready:"Odotetaan, että kaikki ovat valmiita.",net_wait_host:"Isäntä aloittaa pelin.",net_leave:"POISTU",
+ net_stub:"Yhteys toimii: {0} laitetta yhdistetty. Varsinainen moninpeli (pelin synkronointi) tulee seuraavassa vaiheessa.",
  pause_title:"Tauko",b_continue:"JATKA",b_newgame:"UUSI PELI",
  re_win:"Kierros {0}/{1}: {2} voitti",re_tie:"Kierros {0}/{1}: tasapeli",
  re_info:"Jokainen saa {0} palkkion, jäljessä olevat lisää (enintään {1}) ja voittaja {2}. Jokaisesta tuhotusta vihollisesta saa {3} ja vahingosta rahaa.",
@@ -504,6 +522,10 @@ I18N.sv={
  pers_snip:"Prickskytt",pd_snip:"Siktar mycket exakt och sparar pengar.",pers_trick:"Skojare",pd_trick:"Älskar specialvapen och oväntade drag.",
  pers_aven:"Hämnare",pd_aven:"Riktar elden mot den som senast träffade honom.",pers_tyc:"Penningmagnat",pd_tyc:"Köper det dyraste och jagar den rikaste motståndaren.",
  pers_bers:"Bärsärk",pd_bers:"Skjuter alltid med det största, skyddar sig inte men siktar slarvigt.",pers_tact:"Taktiker",pd_tact:"Balanserad, använder laser när sikten är fri.",
+ net_btn:"MULTIPLAYER (BETA)",net_title:"Multiplayer",net_intro:"En enhet skapar ett rum och de andra går med via en kod på fyra tecken. Kräver internet.",net_host:"SKAPA RUM",net_join:"GÅ MED",net_back:"TILLBAKA",net_room:"Rumskod",
+ net_connecting:"Ansluter…",net_nohost:"Rummet hittades inte eller anslutningen misslyckades.",net_err:"Anslutningsfel. Försök igen.",net_load_err:"Anslutningsbiblioteket kunde inte laddas. Kontrollera nätet.",net_bad_code:"Koden har fyra tecken.",net_full:"Rummet är fullt.",
+ net_host_left:"Värden lämnade eller anslutningen bröts.",net_code_is:"Rummets kod:",net_players:"Enheter {0}/{1}",net_you:"du",net_host_tag:"värd",net_ready:"REDO",net_notready:"AVBRYT REDO",net_start:"STARTA",net_need2:"Minst två enheter behövs.",net_wait_ready:"Väntar på att alla ska vara redo.",net_wait_host:"Värden startar spelet.",net_leave:"LÄMNA",
+ net_stub:"Anslutningen fungerar: {0} enheter anslutna. Själva multiplayer-spelet (synkronisering) kommer i nästa steg.",
  pause_title:"Paus",b_continue:"FORTSÄTT",b_newgame:"NYTT SPEL",
  re_win:"Runda {0}/{1}: {2} vann",re_tie:"Runda {0}/{1}: oavgjort",
  re_info:"Alla får {0} i belöning, de som ligger efter får mer (högst {1}) och vinnaren {2}. För varje förstörd fiende får du {3}, och pengar för skada.",
@@ -593,6 +615,10 @@ I18N.en={
  pers_snip:"Sniper",pd_snip:"Aims very precisely and saves money.",pers_trick:"Trickster",pd_trick:"Loves special weapons and unpredictable moves.",
  pers_aven:"Avenger",pd_aven:"Targets whoever hit him last.",pers_tyc:"Tycoon",pd_tyc:"Buys the priciest gear and hunts the richest opponent.",
  pers_bers:"Berserker",pd_bers:"Always fires the biggest, skips shields, aims carelessly.",pers_tact:"Tactician",pd_tact:"Balanced, uses the laser when there is a clear line.",
+ net_btn:"MULTIPLAYER (BETA)",net_title:"Multiplayer",net_intro:"One device creates a room and the others join with a four-character code. Requires an internet connection.",net_host:"CREATE ROOM",net_join:"JOIN",net_back:"BACK",net_room:"Room code",
+ net_connecting:"Connecting…",net_nohost:"Room not found or the connection failed.",net_err:"Connection error. Please try again.",net_load_err:"Could not load the connection library. Check your network.",net_bad_code:"The code has four characters.",net_full:"The room is full.",
+ net_host_left:"The host left or the connection dropped.",net_code_is:"Room code:",net_players:"Devices {0}/{1}",net_you:"you",net_host_tag:"host",net_ready:"READY",net_notready:"NOT READY",net_start:"START",net_need2:"At least two devices are needed.",net_wait_ready:"Waiting for everyone to be ready.",net_wait_host:"The host starts the game.",net_leave:"LEAVE",
+ net_stub:"Connection works: {0} devices connected. The actual multiplayer game (synchronisation) comes in the next step.",
  pause_title:"Paused",b_continue:"RESUME",b_newgame:"NEW GAME",
  re_win:"Round {0}/{1}: {2} won",re_tie:"Round {0}/{1}: draw",
  re_info:"Everyone gets a {0} bonus, trailing players get more (up to {1}) and the winner gets {2}. You earn {3} for each enemy destroyed, plus money for damage.",
@@ -633,7 +659,7 @@ const LEADER_TR={
 
 /* ====== Pelitila ====== */
 const KILL_BONUS=4000;
-let teamMode=0,wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
+let matchSeed=1,turnNo=0,teamMode=0,wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
 let projs=[],rolls=[],burrows=[],fires=[],blasts=[],parts=[],texts=[],trails=[],pending=[];
 const cfg={slots:[0,3,-1,-1,-1,-1,-1,-1],rounds:5,walls:0,cam:1,names:['','','','','','','',''],mode:0,tslots:[[0,3,3],[3,3,3]],tnames:[['','',''],['','','']]};
 try{const s=JSON.parse(localStorage.getItem('tsota2')||'null');if(s&&s.slots&&s.slots.length>=4)Object.assign(cfg,s);}catch(e){}
@@ -689,17 +715,17 @@ function sparkBurst(x,y,n,sp){
   }
 }
 function startDeath(t,kind){
-  const x=t.x,y=t.y-6,q=nextQuote(),r=Math.random();
+  const x=t.x,y=t.y-6,q=nextQuote(),r=sr();
   t.say={txt:q.t,sub:q.s||'',t:0,dur:3.2};t.dying=3.2;
   const k=kind||(r<.38?'cookoff':r<.60?'boom':r<.74?'fizzle':'flip');
   t.deathKind=k;
   if(k==='cookoff'){
-    const n=rint(4,8);let d=.05;
+    const n=srint(4,8);let d=.05;
     for(let i=0;i<n;i++){
-      d+=rnd(.1,.22);
-      pending.push({x:x+rnd(-14,14),y:y+rnd(-14,4),r:rint(7,12),dmg:8,owner:null,delay:d,burst:rint(6,12),tank:t,chunk:Math.random()<.4});
+      d+=srnd(.1,.22);
+      pending.push({x:x+srnd(-14,14),y:y+srnd(-14,4),r:srint(7,12),dmg:8,owner:null,delay:d,burst:srint(6,12),tank:t,chunk:sr()<.4});
     }
-    if(Math.random()<.35)pending.push({x,y:y-4,r:26,dmg:22,owner:null,delay:d+.25,burst:20,tank:t,chunk:true});
+    if(sr()<.35)pending.push({x,y:y-4,r:26,dmg:22,owner:null,delay:d+.25,burst:20,tank:t,chunk:true});
     t.smoulder=4;
   }else if(k==='boom'){
     pending.push({x,y,r:56,dmg:55,owner:null,delay:.15,burst:24,tank:t,chunk:true});
@@ -709,8 +735,8 @@ function startDeath(t,kind){
     for(let i=0;i<10;i++)addPart({x:x+rnd(-8,8),y:y+rnd(-6,4),vx:rnd(-15,15),vy:-rnd(15,50),life:rnd(1,1.8),max:1.8,s:rnd(4,8),col:'#2a2d33',t:'m',g:-10});
   }else{
     pending.push({x,y:t.y+2,r:15,dmg:10,owner:null,delay:0,burst:14,tank:t,chunk:true});
-    const air=rnd(.9,1.2);
-    t.air={age:0,dur:air,vx:rnd(-45,45)};t.vy=-air*160;t.rot=0;t.smoulder=5;
+    const air=srnd(.9,1.2);
+    t.air={age:0,dur:air,vx:srnd(-45,45)};t.vy=-air*160;t.rot=0;t.smoulder=5;
   }
 }
 function stepAir(t,dt){
@@ -762,8 +788,8 @@ function doSplit(p){
   spawnBlast(p.x,p.y,10,'#bde0fe');
   for(let i=0;i<n;i++){
     let vx,vy;
-    if(s.rv>=60&&p.w.id==='funky'){const a=rnd(0,6.283),sp=rnd(30,s.s);vx=p.vx*.4+Math.cos(a)*sp*1.6;vy=Math.sin(a)*sp*1.6-20;}
-    else{vx=p.vx+(i-c)*s.s;vy=Math.max(p.vy,0)+rnd(-6,6);}
+    if(s.rv>=60&&p.w.id==='funky'){const a=srnd(0,6.283),sp=srnd(30,s.s);vx=p.vx*.4+Math.cos(a)*sp*1.6;vy=Math.sin(a)*sp*1.6-20;}
+    else{vx=p.vx+(i-c)*s.s;vy=Math.max(p.vy,0)+srnd(-6,6);}
     projs.push({x:p.x,y:p.y,vx,vy,w:WID[s.id],owner:p.owner,t:0,hops:0,trail:[],grp:p.grp,msd:p.msd,main:!!p.main&&i===Math.floor(c)});
   }
 }
@@ -1314,13 +1340,13 @@ function wxWindK(){return wx==='sun'?.6:wx==='thunder'?1.5:1.3;}
 function wxWindMax(){return wx==='sun'?45:wx==='thunder'?90:75;}
 function setWeather(){
   const c=(cfg.weather|0);
-  wx=c>0?WX_IDS[c-1]:pick(WX_IDS);
+  wx=c>0?WX_IDS[c-1]:spick(WX_IDS);
   wxP=[];wxFlash=0;wxBolt=null;wxBoltAt=null;wxFar=rnd(3,8);
   const n=Math.round((wx==='thunder'?170:wx==='snow'?120:0)*(W*H)/(800*450)*.8);
   for(let i=0;i<n;i++)wxP.push({x:Math.random()*W,y:Math.random()*H,z:.5+Math.random()*.8,ph:Math.random()*6.3});
 }
 function wxTurn(){ // kutsutaan vuoron alussa: ukkonen voi iskeä ammuksen lennon aikana
-  wxBoltAt=(wx==='thunder'&&Math.random()<.55)?rnd(.9,3.2):null;
+  wxBoltAt=(wx==='thunder'&&sr()<.55)?srnd(.9,3.2):null;
 }
 function sndThunder(){
   if(muted||!AC)return;
@@ -1333,8 +1359,8 @@ function sndThunder(){
 }
 function wxStrike(){
   const alive=tanks.filter(t=>t.alive);
-  let x=rnd(W*.08,W*.92);
-  if(alive.length&&Math.random()<.5){const t=pick(alive);x=clamp(t.x+(Math.random()<.5?-1:1)*rnd(25,80),10,W-10);}
+  let x=srnd(W*.08,W*.92);
+  if(alive.length&&sr()<.5){const t=spick(alive);x=clamp(t.x+(sr()<.5?-1:1)*srnd(25,80),10,W-10);}
   const y=surf(x),pts=[[x+rnd(-30,30),0]];
   let cx=pts[0][0];for(let yy=18;yy<y;yy+=rnd(14,26)){cx+=(x-cx)*.25+rnd(-12,12);pts.push([cx,yy]);}
   pts.push([x,y]);
@@ -1743,6 +1769,147 @@ function showFinale(){
   $('again').onclick=()=>{audio();backdrop();showSetup();};
 }
 
+/* ====== Moninpeli: yhteys ja aula (PeerJS / WebRTC) ====== */
+const PEER_SRC='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
+const CODE_CH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',NET_MAX=8;
+const NET={peer:null,role:null,code:'',conns:[],host:null,players:[],me:0,timer:null,gen:0};
+function netCode(){let s='';for(let i=0;i<4;i++)s+=CODE_CH[Math.floor(Math.random()*CODE_CH.length)];return s;}
+function netLoad(ok,fail){
+  if(window.Peer)return ok();
+  const s=document.createElement('script');s.src=PEER_SRC;s.onload=()=>window.Peer?ok():fail();s.onerror=fail;document.head.appendChild(s);
+}
+function netClose(){
+  NET.gen++;clearInterval(NET.timer);NET.timer=null;
+  try{NET.peer&&NET.peer.destroy();}catch(e){}
+  NET.peer=null;NET.role=null;NET.conns=[];NET.host=null;NET.players=[];NET.code='';
+}
+function netName(){return cleanName(cfg.names[0]);}
+function netUniq(name,except){
+  let n=name,k=2;const used=new Set(NET.players.filter(p=>p!==except).map(p=>p.name.toLowerCase()));
+  while(used.has(n.toLowerCase()))n=name.slice(0,11)+' '+k++;return n;
+}
+function netSend(c,m){try{c.open&&c.send(m);}catch(e){}}
+function netBroadcast(){
+  NET.players.forEach((p,i)=>{if(p.conn)netSend(p.conn,{t:'lobby',players:NET.players.map(q=>({name:q.name,ready:q.ready})),you:i});});
+  renderLobby();
+}
+function netBeat(){ // sydämenlyönti: katkenneet yhteydet pudotetaan 14 s kuluttua
+  const now=Date.now();
+  if(NET.role==='host'){
+    for(const p of NET.players.slice(1)){netSend(p.conn,{t:'ping'});if(now-p.seen>14000)netDrop(p.conn);}
+  }else if(NET.host){
+    netSend(NET.host,{t:'ping'});
+    if(now-NET.seen>14000)netHostGone();
+  }
+}
+function netDrop(conn){
+  const i=NET.players.findIndex(p=>p.conn===conn);
+  if(i>0){NET.players.splice(i,1);try{conn.close();}catch(e){}netBroadcast();}
+}
+function netHostGone(){
+  if(NET.role!=='guest')return;
+  netClose();netMenu(T('net_host_left'));
+}
+function netHostRoom(attempt){
+  const gen=++NET.gen;
+  netLoad(()=>{
+    if(gen!==NET.gen)return;
+    const code=netCode(),peer=new Peer('tsota2-'+code,window.PEER_OPTS||{});
+    NET.peer=peer;NET.role='host';NET.code=code;
+    peer.on('open',()=>{
+      if(gen!==NET.gen)return;
+      NET.players=[{name:netName()||T('ph_player',1),ready:true,conn:null,seen:0}];NET.me=0;
+      NET.timer=setInterval(netBeat,4000);renderLobby();
+    });
+    peer.on('error',e=>{
+      if(gen!==NET.gen)return;
+      if(e.type==='unavailable-id'&&(attempt||0)<5){try{peer.destroy();}catch(_){}NET.peer=null;netHostRoom((attempt||0)+1);}
+      else{netClose();netMenu(T('net_err'));}
+    });
+    peer.on('connection',conn=>{
+      conn.on('data',m=>netHostMsg(conn,m));
+      conn.on('close',()=>netDrop(conn));
+      conn.on('error',()=>netDrop(conn));
+    });
+    showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_connecting')+'</p></div>');
+  },()=>{netClose();netMenu(T('net_load_err'));});
+}
+function netHostMsg(conn,m){
+  if(!m||typeof m!=='object')return;
+  let p=NET.players.find(q=>q.conn===conn);
+  if(m.t==='hello'&&!p){
+    if(NET.players.length>=NET_MAX){netSend(conn,{t:'full'});setTimeout(()=>{try{conn.close();}catch(e){}},300);return;}
+    p={name:'',ready:false,conn,seen:Date.now()};
+    p.name=netUniq(cleanName(m.name)||T('ph_player',NET.players.length+1),p);
+    NET.players.push(p);netBroadcast();return;
+  }
+  if(!p)return;
+  p.seen=Date.now();
+  if(m.t==='name'){p.name=netUniq(cleanName(m.name)||p.name,p);netBroadcast();}
+  else if(m.t==='ready'){p.ready=!!m.v;netBroadcast();}
+}
+function netJoin(code){
+  code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+  if(code.length!==4){netMenu(T('net_bad_code'));return;}
+  const gen=++NET.gen;
+  showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_connecting')+'</p><button class="go alt" id="ncancel">'+T('net_back')+'</button></div>');
+  $('ncancel').onclick=()=>{netClose();netMenu();};
+  netLoad(()=>{
+    if(gen!==NET.gen)return;
+    const peer=new Peer(window.PEER_OPTS||{});NET.peer=peer;NET.role='guest';NET.code=code;
+    const fail=msg=>{if(gen!==NET.gen)return;netClose();netMenu(msg);};
+    const tmo=setTimeout(()=>fail(T('net_nohost')),12000);
+    peer.on('error',e=>{clearTimeout(tmo);fail(e.type==='peer-unavailable'?T('net_nohost'):T('net_err'));});
+    peer.on('open',()=>{
+      if(gen!==NET.gen)return;
+      const conn=peer.connect('tsota2-'+code,{reliable:true});
+      NET.host=conn;
+      conn.on('open',()=>{clearTimeout(tmo);NET.seen=Date.now();NET.timer=setInterval(netBeat,4000);netSend(conn,{t:'hello',name:netName()});});
+      conn.on('data',m=>{
+        if(!m||typeof m!=='object')return;NET.seen=Date.now();
+        if(m.t==='lobby'){NET.players=m.players;NET.me=m.you;renderLobby();}
+        else if(m.t==='full')fail(T('net_full'));
+        else if(m.t==='start')netStartStub();
+      });
+      conn.on('close',()=>{clearTimeout(tmo);if(NET.role==='guest'&&NET.players.length)netHostGone();else fail(T('net_nohost'));});
+    });
+  },()=>{if(gen===NET.gen){netClose();netMenu(T('net_load_err'));}});
+}
+function netMenu(msg){
+  paused=false;phase='menu';
+  showOv('<div class="card">'+langPicker()+'<h2>'+T('net_title')+'</h2><p>'+T('net_intro')+'</p>'+
+    (msg?'<p style="color:var(--danger)" id="nmsg">'+esc(msg)+'</p>':'')+
+    '<button class="go" id="nhost">'+T('net_host')+'</button>'+
+    '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('net_room')+'</span><input type="text" id="ncode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD" style="text-transform:uppercase;letter-spacing:.2em;font-size:16px"></div>'+
+    '<button class="go alt" id="njoin">'+T('net_join')+'</button><button class="go alt" id="nback">'+T('net_back')+'</button></div>');
+  bindLang(()=>netMenu(msg));
+  $('nhost').onclick=()=>{audio();netHostRoom(0);};
+  $('njoin').onclick=()=>{audio();netJoin($('ncode').value);};
+  $('nback').onclick=()=>showSetup();
+}
+function renderLobby(){
+  if(!NET.role||!NET.players.length)return;
+  const host=NET.role==='host',me=NET.me;
+  const rows=NET.players.map((p,i)=>'<div class="slot"><i style="background:'+COLORS[i%8]+'"></i><span style="flex:1">'+esc(p.name)+(i===0?' <small>('+T('net_host_tag')+')</small>':'')+(i===me?' <small>('+T('net_you')+')</small>':'')+'</span><b>'+(p.ready?'✓':'…')+'</b></div>').join('');
+  const allReady=NET.players.every(p=>p.ready),can=NET.players.length>=2&&allReady;
+  showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_code_is')+'</p><div class="hsname" style="color:var(--accent);letter-spacing:.25em" id="roomcode">'+esc(NET.code)+'</div>'+
+    '<div class="teamhead">'+T('net_players',NET.players.length,NET_MAX)+'</div>'+rows+
+    '<div class="slot"><i></i><span>'+T('slot_name')+'</span><input type="text" id="nname" maxlength="14" autocomplete="off" style="font-size:16px" value="'+esc(NET.players[me].name)+'"></div>'+
+    (host?'<button class="go" id="nstart"'+(can?'':' disabled style="opacity:.45"')+'>'+T('net_start')+'</button><p>'+T(NET.players.length<2?'net_need2':'net_wait_ready')+'</p>'
+         :'<button class="go" id="nready">'+T(NET.players[me].ready?'net_notready':'net_ready')+'</button><p>'+T('net_wait_host')+'</p>')+
+    '<button class="go alt" id="nleave">'+T('net_leave')+'</button></div>');
+  const nm=$('nname');
+  nm.onchange=()=>{const v=cleanName(nm.value);if(!v)return;if(host){NET.players[0].name=netUniq(v,NET.players[0]);netBroadcast();}else netSend(NET.host,{t:'name',name:v});};
+  if(host)$('nstart').onclick=()=>{if(!can)return;NET.players.slice(1).forEach(p=>netSend(p.conn,{t:'start'}));netStartStub();};
+  else $('nready').onclick=()=>netSend(NET.host,{t:'ready',v:!NET.players[me].ready});
+  $('nleave').onclick=()=>{netClose();netMenu();};
+}
+/* Vaihe 3 toteuttaa varsinaisen pelin synkronoinnin; toistaiseksi vain vahvistetaan, että yhteys toimii */
+function netStartStub(){
+  showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_stub',NET.players.length)+'</p><button class="go alt" id="nback2">'+T('net_leave')+'</button></div>');
+  $('nback2').onclick=()=>{netClose();showSetup();};
+}
+
 /* ====== Ase- ja käyttöliittymä ====== */
 const ov=$('ov'),elAng=$('ang'),elPow=$('pow'),elFire=$('fire');
 let paused=false,settle=0,shopQ=[],shopI=0,lastUI='';
@@ -1859,14 +2026,14 @@ function hideOv(){ov.classList.add('hidden');ov.classList.remove('finale');lastU
 function teamName(k){return '<span style="color:'+TEAM_COL[k]+'">'+(k?'■ ':'▲ ')+T('team'+(k+1))+'</span>';}
 function layoutTanks(){
   const n=tanks.length,order=[];for(let i=0;i<n;i++)order.push(i);
-  for(let i=n-1;i>0;i--){const j=rint(0,i);[order[i],order[j]]=[order[j],order[i]];}
+  for(let i=n-1;i>0;i--){const j=srint(0,i);[order[i],order[j]]=[order[j],order[i]];}
   if(teamMode){ // joukkueet vastakkaisille puolille, järjestys joukkueen sisällä satunnainen
-    const left=Math.random()<.5?0:1;
+    const left=sr()<.5?0:1;
     order.sort((a,b)=>((tanks[a].team===left?0:1)-(tanks[b].team===left?0:1)));
   }
   order.forEach((ti,slot)=>{
     const t=tanks[ti],seg=W/n;
-    t.x=Math.round(clamp((slot+.5)*seg+rnd(-seg*.27,seg*.27),32,W-32));
+    t.x=Math.round(clamp((slot+.5)*seg+srnd(-seg*.27,seg*.27),32,W-32));
     let s=0;for(let k=-10;k<=10;k++)s+=surf(t.x+k);s/=21;
     for(let k=-16;k<=16;k++){const i=t.x+k;if(i<0||i>=W)continue;const m=Math.abs(k)<=10?1:1-(Math.abs(k)-10)/6;ground[i]=ground[i]*(1-m)+s*m;}
     t.y=surf(t.x);
@@ -1884,8 +2051,8 @@ function fitWorld(){
   if(w!==W||h!==H||!bgCv){W=w;H=h;ground=new Float32Array(W);mask=new Uint8Array(W*H);bgCv=null;tCv=null;cv.width=W*S;cv.height=H*S;cam.x=W/2;cam.y=H/2;}
 }
 function startRound(){
-  prevCur=-1;
-  fitWorld();genTerrain();th=pick(THEMES);buildSky();
+  prevCur=-1;turnNo=0;seedSim(mixSeed(matchSeed,round,0));
+  fitWorld();genTerrain();th=spick(THEMES);buildSky();
   projs=[];rolls=[];burrows=[];fires=[];blasts=[];parts=[];texts=[];trails=[];pending=[];shake=0;ai=null;
   for(const t of tanks){
     t.shield=0;t.shAge=null;t.mag=0;t.magAge=null;
@@ -1894,8 +2061,8 @@ function startRound(){
   for(const t of tanks)t.y=ground[clamp(Math.round(t.x),0,W-1)];
   camF=null;cam.z=1;cam.x=W/2;cam.y=H/2;aimDrag=null;
   setWeather();
-  wind=Math.round(rnd(-45,45)*wxWindK());
-  cur=rint(0,tanks.length-1);
+  wind=Math.round(srnd(-45,45)*wxWindK());
+  cur=srint(0,tanks.length-1);
   hideOv();beginTurn();
 }
 /* Suojat vanhenevat omilla vuoroilla: yksi kierros = kaikki ovat ampuneet ja oma vuoro alkaa uudelleen */
@@ -1925,7 +2092,8 @@ function endTurn(){
   const alive=tanks.filter(t=>t.alive);
   if(teamMode?new Set(alive.map(t=>t.team)).size<=1:alive.length<=1){roundEnd(alive[0]||null);return;}
   do{cur=(cur+1)%tanks.length;}while(!tanks[cur].alive);
-  wind=Math.round(clamp(wind+rnd(-12,12)*wxWindK(),-wxWindMax(),wxWindMax()));
+  turnNo++;seedSim(mixSeed(matchSeed,round,turnNo));
+  wind=Math.round(clamp(wind+srnd(-12,12)*wxWindK(),-wxWindMax(),wxWindMax()));
   beginTurn();
 }
 function earnTotal(t){return t.earn.dmg+t.earn.kills+t.earn.bonus;}
@@ -2095,7 +2263,7 @@ function showSetup(){
     opt(0,cfg.weather|0,T('wx0'))+opt(1,cfg.weather|0,'☀ '+T('wx1'))+opt(2,cfg.weather|0,'⛈ '+T('wx2'))+opt(3,cfg.weather|0,'❄ '+T('wx3'))+'</select></div>'+
     '<div class="slot"><i style="background:var(--accent)"></i><span>'+T('slot_walls')+'</span><select id="wl">'+
     opt(0,cfg.walls,T('wall0'))+opt(1,cfg.walls,T('wall1'))+opt(2,cfg.walls,T('wall2'))+'</select></div>'+
-    '<p id="err" style="color:var(--danger);margin:6px 0 0"></p><button class="go" id="start">'+T('b_start')+'</button><button class="go alt" id="guide">'+T('b_guide')+'</button>';
+    '<p id="err" style="color:var(--danger);margin:6px 0 0"></p><button class="go" id="start">'+T('b_start')+'</button><button class="go alt" id="guide">'+T('b_guide')+'</button><button class="go alt" id="netb">'+T('net_btn')+'</button>';
   const sv=readSave();
   if(sv)h+='<button class="go alt" id="resume">'+T('b_resume',sv.round,sv.maxRounds)+'</button>';
   h+='</div>';
@@ -2111,6 +2279,7 @@ function showSetup(){
     }else if(cfg.slots.slice(0,n).filter(v=>v>=0).length<2){$('err').textContent=T('err_min2');return;}
     saveCfg();startGame();
   };
+  $('netb').onclick=()=>{readSetupForm();saveCfg();netMenu();};
   $('guide').onclick=()=>{readSetupForm();showTutorial(0,showSetup);};
   if(sv)$('resume').onclick=()=>{audio();resumeGame(sv);};
 }
@@ -2168,6 +2337,7 @@ function startGame(){
     tanks.push(t);
   });
   teamMode=N;
+  matchSeed=(Math.random()*4294967296)>>>0;
   maxRounds=cfg.rounds;round=1;wallMode=cfg.walls||0;clearSave();
   showBriefing(beginShops);
 }
@@ -2201,3 +2371,6 @@ let rzT=0;
 addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(phase==='menu'||phase==='shop'||phase==='over'){const keep=phase;if(keep==='menu')backdrop();}},250);});
 requestAnimationFrame(frame);
 </script>
+
+<script>if('serviceWorker'in navigator&&/^https?:/.test(location.protocol))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
+</body></html>
