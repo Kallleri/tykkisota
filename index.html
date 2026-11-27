@@ -211,11 +211,11 @@ const WP=[
 {id:'napalm',n:'Napalmi',d:'Jättää palavan lätäkön.',price:2500,bundle:3,r:50,ttl:2.8,fdps:13,dmg:0,k:'fire',col:'#ff6b35'},
 {id:'hot_napalm',n:'Kuumanapalmi',d:'Suurempi ja kuumempi.',price:5000,bundle:2,r:78,ttl:3.5,fdps:16,dmg:0,k:'fire',col:'#e8590c'},
 {id:'bunker',n:'Bunkkeripommi',d:'Porautuu maahan ennen räjähdystä.',price:6000,bundle:3,r:58,dmg:100,k:'burrow',col:'#868e96'},
-{id:'tracer',n:'Merkkiammus',d:'Näyttää lentoradan. Ei vahinkoa.',price:300,bundle:10,r:8,dmg:0,k:'tracer',col:'#e9ecef'},
+{id:'tracer',n:'Merkkiammus',d:'Näyttää lentoradan. Ei vahinkoa.',price:500,bundle:10,r:8,dmg:0,k:'tracer',col:'#e9ecef'},
 {id:'shield',n:'Kilpi',d:'Imee 100 vahinkoa.',price:4000,bundle:2,amt:100,k:'shield',col:'#3bc9db'},
 {id:'heavy_shield',n:'Raskas kilpi',d:'Imee 250 vahinkoa.',price:6500,bundle:1,amt:250,k:'shield',col:'#15aabf'},
-{id:'laser',n:'Laser',d:'Lentää suoraan. Voima ei vaikuta.',price:3200,bundle:4,r:32,dmg:55,k:'std',mv:'laser',col:'#ff4d8d'},
-{id:'glider',n:'Liitopommi',d:'Liitää radan huipun jälkeen pitkälle.',price:2800,bundle:4,r:32,dmg:55,k:'std',mv:'glide',col:'#a5d8ff'},
+{id:'laser',n:'Laser',d:'Lentää suoraan. Voima ei vaikuta.',price:3000,bundle:4,r:32,dmg:55,k:'std',mv:'laser',col:'#ff4d8d'},
+{id:'glider',n:'Liitopommi',d:'Liitää radan huipun jälkeen pitkälle.',price:3000,bundle:4,r:32,dmg:55,k:'std',mv:'glide',col:'#a5d8ff'},
 {id:'drone',n:'Drooni',d:'Hakeutuu tähtäyssuunnan lähimpään viholliseen.',price:3000,bundle:3,r:18,dmg:25,k:'std',mv:'drone',col:'#e599f7'},
 {id:'magnet',n:'Magneettisuoja',d:'Taivuttaa lähellä kulkevien ammusten rataa.',price:3000,bundle:2,amt:3,k:'magnet',col:'#da77f2'},
 {id:'repair',n:'Korjaussarja',d:'Palauttaa 50 kestävyyttä.',price:3000,bundle:3,amt:50,k:'repair',col:'#51cf66'},
@@ -438,7 +438,7 @@ pause_title:"Tauko",b_continue:"JATKA",b_newgame:"UUSI PELI",
  re_win:"Kierros {0}/{1}: {2} voitti",re_tie:"Kierros {0}/{1}: tasapeli",
  re_info:"Jokainen saa {0} palkkion, jäljessä olevat lisää (enintään {1}) ja voittaja {2}. Jokaisesta tuhotusta vihollisesta saa {3} ja vahingosta rahaa.",
  b_podium:"PALKINTOKOROKKEELLE",b_shop_next:"KAUPPA JA SEURAAVA KIERROS",
- th_player:"Pelaaja",th_wins:"Voitot",th_money:"Rahat",th_round:"Kierros",earn_none:"ei ansioita",earn_dmg:"vahinko {0}",
+ th_player:"Pelaaja",th_wins:"Voitot",th_dmg:"Vahinko",th_money:"Rahat",th_round:"Kierros",earn_none:"ei ansioita",earn_dmg:"vahinko {0}",
  earn_kill1:"{0} tuho {1}",earn_killn:"{0} tuhoa {1}",earn_bonus:"palkkio {0}",
  fin_title:"Peli ohi",fin_winner:"Voittaja",
  quotes:[
@@ -532,7 +532,7 @@ pause_title:"Paus",b_continue:"FORTSÄTT",b_newgame:"NYTT SPEL",
  re_win:"Runda {0}/{1}: {2} vann",re_tie:"Runda {0}/{1}: oavgjort",
  re_info:"Alla får {0} i belöning, de som ligger efter får mer (högst {1}) och vinnaren {2}. För varje förstörd fiende får du {3}, och pengar för skada.",
  b_podium:"TILL PRISPALLEN",b_shop_next:"BUTIK OCH NÄSTA RUNDA",
- th_player:"Spelare",th_wins:"Segrar",th_money:"Pengar",th_round:"Runda",earn_none:"inga intäkter",earn_dmg:"skada {0}",
+ th_player:"Spelare",th_wins:"Segrar",th_dmg:"Skada",th_money:"Pengar",th_round:"Runda",earn_none:"inga intäkter",earn_dmg:"skada {0}",
  earn_kill1:"{0} förstörd {1}",earn_killn:"{0} förstörda {1}",earn_bonus:"belöning {0}",
  fin_title:"Spelet slut",fin_winner:"Vinnare",
  quotes:[
@@ -626,7 +626,7 @@ pause_title:"Paused",b_continue:"RESUME",b_newgame:"NEW GAME",
  re_win:"Round {0}/{1}: {2} won",re_tie:"Round {0}/{1}: draw",
  re_info:"Everyone gets a {0} bonus, trailing players get more (up to {1}) and the winner gets {2}. You earn {3} for each enemy destroyed, plus money for damage.",
  b_podium:"TO THE PODIUM",b_shop_next:"SHOP AND NEXT ROUND",
- th_player:"Player",th_wins:"Wins",th_money:"Money",th_round:"Round",earn_none:"no earnings",earn_dmg:"damage {0}",
+ th_player:"Player",th_wins:"Wins",th_dmg:"Damage",th_money:"Money",th_round:"Round",earn_none:"no earnings",earn_dmg:"damage {0}",
  earn_kill1:"{0} kill {1}",earn_killn:"{0} kills {1}",earn_bonus:"bonus {0}",
  fin_title:"Game over",fin_winner:"Winner",
  quotes:[
@@ -671,7 +671,7 @@ function saveCfg(){try{localStorage.setItem('tsota2',JSON.stringify(cfg));}catch
 
 function makeTank(i,lvl,name){
   return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',team:-1,dev:-1,pers:null,leader:'',hitBy:null,shield:0,mag:0,shAge:null,magAge:null,
-    alive:true,wins:0,money:12000,fall:0,vy:0,acc:0,kills:0,mem:null,dHp:100,flash:0,last:null,lastImp:null,earn:{dmg:0,kills:0,nk:0,bonus:0}};
+    alive:true,wins:0,dmgDone:0,money:12000,fall:0,vy:0,acc:0,kills:0,mem:null,dHp:100,flash:0,last:null,lastImp:null,earn:{dmg:0,kills:0,nk:0,bonus:0}};
 }
 function tankPos(t){return {x:t.x,y:t.y-9};}
 function maxPow(t){return uncap?100:Math.max(10,Math.min(100,Math.ceil(t.hp)));}
@@ -764,7 +764,7 @@ function applyDamage(t,amt,src,quiet){
     if(t.shield<=0){floatText(t.x,t.y-26,T('fx_shield_down'),'#7fe3f0');}}
   if(amt<=0)return 0;
   const dealt=Math.min(t.hp,amt);t.hp-=amt;
-  if(src&&src!==t&&!sameTeam(src,t)){t.hitBy=src.i;src.money+=dealt*6;src.earn.dmg+=dealt*6;}
+  if(src&&src!==t&&!sameTeam(src,t)){t.hitBy=src.i;src.dmgDone+=dealt;src.money+=dealt*6;src.earn.dmg+=dealt*6;}
   if(quiet){t.acc+=amt;if(t.acc>=6){floatText(t.x+rnd(-8,8),t.y-26,'-'+Math.round(t.acc),'#ffb36b');t.acc=0;}}
   else floatText(t.x,t.y-26,'-'+Math.round(amt),'#ff6b6b');
   if(t.hp<=0&&t.alive){
@@ -1743,7 +1743,7 @@ function drawPodium(){
     ctx.fillStyle='#14161c';fitFont(p.name,bw-12,15,700,'"Chakra Petch",system-ui,sans-serif');
     ctx.fillText(p.name,s.x,y+h-34);
     ctx.font='600 13px Inter,system-ui,sans-serif';
-    ctx.fillText(p.wins+' ★ · '+money(p.money),s.x,y+h-14);
+    ctx.fillText(p.wins+' ★ · '+Math.round(p.dmgDone)+' '+T('th_dmg').toLowerCase(),s.x,y+h-14);
     const bob=s.i===0?-Math.abs(Math.sin(finaleT*5))*5:0;
     const proxy={x:s.x,y:y+bob,col:p.col,ang:90+Math.sin(finaleT*3+s.i*2)*40,alive:true,inv:{},shield:0,flash:0,fall:0,vy:0,rot:0,noTilt:1,hp:100};
     drawTank(proxy);
@@ -1756,7 +1756,7 @@ function drawPodium(){
 }
 function finalWinnerHtml(){
   if(!teamMode)return '<span style="color:'+podium[0].col+'">'+esc(podium[0].name)+'</span>';
-  const sc=[0,1].map(k=>tanks.filter(t=>t.team===k).reduce((a,t)=>[a[0]+t.wins,a[1]+t.money],[0,0]));
+  const sc=[0,1].map(k=>tanks.filter(t=>t.team===k).reduce((a,t)=>[a[0]+t.wins,a[1]+t.dmgDone],[0,0]));
   if(sc[0][0]!==sc[1][0])return teamName(sc[0][0]>sc[1][0]?0:1);
   if(sc[0][1]!==sc[1][1])return teamName(sc[0][1]>sc[1][1]?0:1);
   return T('fin_tie');
@@ -1767,7 +1767,7 @@ function showFinale(){
   th=THEMES[2];buildSky();mask.fill(0);ground.fill(H);
   projs=[];rolls=[];burrows=[];fires=[];blasts=[];parts=[];texts=[];trails=[];pending=[];fw=[];fwKids=[];rings=[];ai=null;
   fwTimer=0;finaleT=0;fwBag=[];shake=0;cam.z=1;cam.x=W/2;cam.y=H/2;camF=null;aimDrag=null;
-  podium=tanks.slice().sort((a,b)=>b.wins-a.wins||b.money-a.money).slice(0,3);
+  podium=tanks.slice().sort((a,b)=>b.wins-a.wins||b.dmgDone-a.dmgDone).slice(0,3);
   for(let i=0;i<4;i++)setTimeout(()=>{if(phase==='finale')launchFw(nextFwType());},i*250);
   showOv('<div class="card"><h1>'+T('fin_title')+'</h1><h2>'+T('fin_winner')+': '+finalWinnerHtml()+'</h2>'+tableHtml(false)+
     '<button class="go" id="again">'+T('b_newgame')+'</button></div>','finale');
@@ -2018,7 +2018,7 @@ function netApplyAim(m){
   t.ang=clamp(+m.ang||0,0,180);t.pow=clamp(+m.pow||5,5,100);if(WID[m.sel]&&(WID[m.sel].inf||(t.inv[m.sel]||0)>0))t.sel=m.sel;lastUI='';
 }
 function netSnap(){
-  return {g:Array.from(ground),w:wind,it:idleTurns,uc:uncap,t:tanks.map(t=>({x:t.x,y:t.y,hp:t.hp,al:t.alive?1:0,mo:t.money,sh:t.shield,sa:t.shAge,mg:t.mag,ma:t.magAge,wi:t.wins,ki:t.kills,iv:t.inv,ea:t.earn}))};
+  return {g:Array.from(ground),w:wind,it:idleTurns,uc:uncap,t:tanks.map(t=>({x:t.x,y:t.y,hp:t.hp,al:t.alive?1:0,mo:t.money,sh:t.shield,sa:t.shAge,mg:t.mag,ma:t.magAge,wi:t.wins,ki:t.kills,dd:t.dmgDone,iv:t.inv,ea:t.earn}))};
 }
 function netApplySnap(s){
   if(!s)return;
@@ -2026,7 +2026,7 @@ function netApplySnap(s){
   mask.fill(0);for(let x=0;x<W;x++){const g=clamp(Math.round(ground[x]),1,H-5);for(let y=g;y<H;y++)mask[y*W+x]=1;}
   terrDirty=true;
   wind=s.w;if(s.it!=null){idleTurns=s.it;uncap=!!s.uc;lastUI='';}
-  s.t.forEach((o,i)=>{const t=tanks[i];if(!t)return;t.x=o.x;t.y=o.y;t.hp=o.hp;t.dHp=o.hp;t.alive=!!o.al;t.money=o.mo;t.shield=o.sh;t.shAge=o.sa;t.mag=o.mg;t.magAge=o.ma;t.wins=o.wi;t.kills=o.ki;t.inv=o.iv;t.earn=o.ea;});
+  s.t.forEach((o,i)=>{const t=tanks[i];if(!t)return;t.x=o.x;t.y=o.y;t.hp=o.hp;t.dHp=o.hp;t.alive=!!o.al;t.money=o.mo;t.shield=o.sh;t.shAge=o.sa;t.mag=o.mg;t.magAge=o.ma;t.wins=o.wi;t.kills=o.ki;t.dmgDone=o.dd||0;t.inv=o.iv;t.earn=o.ea;});
 }
 function turnDone(){ // isäntä päättää vuoron lopun ja lähettää tarkan tilan; vieraat odottavat
   if(NET.active&&NET.role==='guest')return;
@@ -2407,11 +2407,11 @@ function earnDetail(t){
   return a.join(' · ');
 }
 function tableHtml(withEarn){
-  const list=tanks.slice().sort((a,b)=>b.wins-a.wins||b.money-a.money);
+  const list=tanks.slice().sort((a,b)=>b.wins-a.wins||b.dmgDone-a.dmgDone);
   const dot=t=>'<i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+t.col+'"></i> '+(t.team>=0?'<span style="color:'+TEAM_COL[t.team]+'">'+(t.team?'■':'▲')+'</span> ':'');
   if(!withEarn){
-    return '<table><tr><th>'+T('th_player')+'</th><th>'+T('th_wins')+'</th><th>'+T('th_money')+'</th></tr>'+
-      list.map(t=>'<tr><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+money(t.money)+'</td></tr>').join('')+'</table>';
+    return '<table><tr><th>'+T('th_player')+'</th><th>'+T('th_wins')+'</th><th>'+T('th_dmg')+'</th></tr>'+
+      list.map(t=>'<tr><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+Math.round(t.dmgDone)+'</td></tr>').join('')+'</table>';
   }
   return '<table><tr><th>'+T('th_player')+'</th><th>'+T('th_wins')+'</th><th>'+T('th_money')+'</th><th style="text-align:right">'+T('th_round')+'</th></tr>'+
     list.map(t=>'<tr class="main"><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+money(t.money)+'</td><td class="earn">+'+money(earnTotal(t))+'</td></tr>'+
@@ -2420,6 +2420,10 @@ function tableHtml(withEarn){
 let lastWinIdx=-1;
 function roundEnd(w){
   phase='over';
+  for(const t of tanks){ // palkkiot 500 tarkkuudella
+    const r=Math.round(t.earn.dmg/500)*500;t.money+=r-t.earn.dmg;t.earn.dmg=r;
+    t.money=Math.round(t.money/500)*500;
+  }
   const winners=w?(teamMode?tanks.filter(t=>t.team===w.team):[w]):[];
   winners.forEach(t=>t.wins++);
   const lead=Math.max(...tanks.map(t=>t.wins));
@@ -2442,12 +2446,12 @@ function roundEndOverlay(w){
 /* ====== Tallennus kierrosten välillä ====== */
 function saveGame(nextRound){
   try{localStorage.setItem('tsota2g',JSON.stringify({round:nextRound,maxRounds,walls:wallMode,mode:teamMode,
-    tanks:tanks.map(t=>({i:t.i,lvl:t.lvl,name:t.name,wins:t.wins,money:Math.round(t.money),inv:t.inv,kills:t.kills,team:t.team,ld:t.leader}))}));}catch(e){}
+    tanks:tanks.map(t=>({i:t.i,lvl:t.lvl,name:t.name,wins:t.wins,money:Math.round(t.money),inv:t.inv,kills:t.kills,dd:t.dmgDone,team:t.team,ld:t.leader}))}));}catch(e){}
 }
 function clearSave(){try{localStorage.removeItem('tsota2g');}catch(e){}}
 function readSave(){try{const s=JSON.parse(localStorage.getItem('tsota2g')||'null');return s&&s.tanks&&s.tanks.length>=2?s:null;}catch(e){return null;}}
 function resumeGame(sv){
-  tanks=sv.tanks.map(o=>{const t=makeTank(o.i,o.lvl,o.name);t.wins=o.wins;t.money=o.money;t.inv=o.inv;t.kills=o.kills||0;t.team=o.team==null?-1:o.team;if(t.lvl>0){t.leader=o.ld||String(o.name).split(' ').pop();t.pers=persOf(t.leader);};return t;});
+  tanks=sv.tanks.map(o=>{const t=makeTank(o.i,o.lvl,o.name);t.wins=o.wins;t.money=o.money;t.inv=o.inv;t.kills=o.kills||0;t.dmgDone=o.dd||0;t.team=o.team==null?-1:o.team;if(t.lvl>0){t.leader=o.ld||String(o.name).split(' ').pop();t.pers=persOf(t.leader);};return t;});
   teamMode=sv.mode||0;
   maxRounds=sv.maxRounds;round=sv.round;wallMode=sv.walls||0;
   beginShops();
@@ -2540,6 +2544,11 @@ const sSet=(i,v)=>{if(cfg.mode)cfg.tslots[Math.floor(i/cfg.mode)][i%cfg.mode]=v;
 const nGet=i=>cfg.mode?cfg.tnames[Math.floor(i/cfg.mode)][i%cfg.mode]:cfg.names[i];
 const nSet=(i,v)=>{if(cfg.mode)cfg.tnames[Math.floor(i/cfg.mode)][i%cfg.mode]=v;else cfg.names[i]=v;};
 const slotsNow=()=>cfg.mode?2*cfg.mode:slotCount();
+function updNetBtn(){ // moninpeli vain, kun ihmispelaajia on vähintään kaksi
+  const b=$('netb');if(!b||!$('s0'))return;
+  let h=0;const n=slotsNow();for(let i=0;i<n;i++)if(+$('s'+i).value===0)h++;
+  b.hidden=h<2;
+}
 function readSetupForm(){
   if(!$('s0'))return;
   const n=slotsNow();
@@ -2577,6 +2586,7 @@ function showSetup(){
   showOv(h);
   bindLang(()=>{readSetupForm();showSetup();});
   $('mode').onchange=()=>{readSetupForm();cfg.mode=+$('mode').value;showSetup();};
+  ov.onchange=updNetBtn;updNetBtn();
   for(let i=0;i<n;i++)$('s'+i).onchange=()=>{$('nr'+i).hidden=+$('s'+i).value!==0;};
   $('start').onclick=()=>{
     audio();
