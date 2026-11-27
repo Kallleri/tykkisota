@@ -2548,6 +2548,7 @@ function updNetBtn(){ // moninpeli vain, kun ihmispelaajia on vähintään kaksi
   const b=$('netb');if(!b||!$('s0'))return;
   let h=0;const n=slotsNow();for(let i=0;i<n;i++)if(+$('s'+i).value===0)h++;
   b.hidden=h<2;
+  const hs=$('hot');if(hs&&hs.closest('.slot'))hs.closest('.slot').hidden=h<2; // hot seat vain jos ihmisiä on vähintään kaksi
 }
 function readSetupForm(){
   if(!$('s0'))return;
