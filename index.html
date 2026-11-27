@@ -433,7 +433,8 @@ I18N.fi={
  net_connecting:"Yhdistetään…",net_nohost:"Huonetta ei löytynyt tai yhteys ei muodostunut.",net_err:"Yhteysvirhe. Yritä uudelleen.",net_load_err:"Yhteyskirjastoa ei saatu ladattua. Tarkista verkko.",net_bad_code:"Koodissa on neljä merkkiä.",net_full:"Huone on täynnä.",
  net_host_left:"Isäntä poistui tai yhteys katkesi.",net_code_is:"Huoneen koodi:",net_players:"Laitteet {0}/{1}",net_you:"sinä",net_host_tag:"isäntä",net_ready:"VALMIS",net_notready:"PERUUTA VALMIUS",net_start:"ALOITA",net_need2:"Tarvitaan vähintään kaksi laitetta.",net_wait_ready:"Odotetaan, että kaikki ovat valmiita.",net_wait_host:"Isäntä aloittaa pelin.",net_leave:"POISTU",
  net_stub:"Yhteys toimii: {0} laitetta yhdistetty. Varsinainen moninpeli (pelin synkronointi) tulee seuraavassa vaiheessa.",
- pause_title:"Tauko",b_continue:"JATKA",b_newgame:"UUSI PELI",
+ net_ai:"Tekoälyjä",net_lvl:"Tekoälyn taso",net_toomany:"Liian monta laitetta (puhelimilla enintään 4).",net_waiting:"Odotetaan muita pelaajia…",net_ai_took:"Tekoäly ottaa vuoron",net_pause_note:"Peli jatkuu muille. Poistuessasi tankkisi siirtyy tekoälylle.",
+pause_title:"Tauko",b_continue:"JATKA",b_newgame:"UUSI PELI",
  re_win:"Kierros {0}/{1}: {2} voitti",re_tie:"Kierros {0}/{1}: tasapeli",
  re_info:"Jokainen saa {0} palkkion, jäljessä olevat lisää (enintään {1}) ja voittaja {2}. Jokaisesta tuhotusta vihollisesta saa {3} ja vahingosta rahaa.",
  b_podium:"PALKINTOKOROKKEELLE",b_shop_next:"KAUPPA JA SEURAAVA KIERROS",
@@ -526,7 +527,8 @@ I18N.sv={
  net_connecting:"Ansluter…",net_nohost:"Rummet hittades inte eller anslutningen misslyckades.",net_err:"Anslutningsfel. Försök igen.",net_load_err:"Anslutningsbiblioteket kunde inte laddas. Kontrollera nätet.",net_bad_code:"Koden har fyra tecken.",net_full:"Rummet är fullt.",
  net_host_left:"Värden lämnade eller anslutningen bröts.",net_code_is:"Rummets kod:",net_players:"Enheter {0}/{1}",net_you:"du",net_host_tag:"värd",net_ready:"REDO",net_notready:"AVBRYT REDO",net_start:"STARTA",net_need2:"Minst två enheter behövs.",net_wait_ready:"Väntar på att alla ska vara redo.",net_wait_host:"Värden startar spelet.",net_leave:"LÄMNA",
  net_stub:"Anslutningen fungerar: {0} enheter anslutna. Själva multiplayer-spelet (synkronisering) kommer i nästa steg.",
- pause_title:"Paus",b_continue:"FORTSÄTT",b_newgame:"NYTT SPEL",
+ net_ai:"AI-spelare",net_lvl:"AI-nivå",net_toomany:"För många enheter (högst 4 med mobiler).",net_waiting:"Väntar på de andra spelarna…",net_ai_took:"AI tar över",net_pause_note:"Spelet fortsätter för de andra. Om du lämnar tar AI över din tank.",
+pause_title:"Paus",b_continue:"FORTSÄTT",b_newgame:"NYTT SPEL",
  re_win:"Runda {0}/{1}: {2} vann",re_tie:"Runda {0}/{1}: oavgjort",
  re_info:"Alla får {0} i belöning, de som ligger efter får mer (högst {1}) och vinnaren {2}. För varje förstörd fiende får du {3}, och pengar för skada.",
  b_podium:"TILL PRISPALLEN",b_shop_next:"BUTIK OCH NÄSTA RUNDA",
@@ -619,7 +621,8 @@ I18N.en={
  net_connecting:"Connecting…",net_nohost:"Room not found or the connection failed.",net_err:"Connection error. Please try again.",net_load_err:"Could not load the connection library. Check your network.",net_bad_code:"The code has four characters.",net_full:"The room is full.",
  net_host_left:"The host left or the connection dropped.",net_code_is:"Room code:",net_players:"Devices {0}/{1}",net_you:"you",net_host_tag:"host",net_ready:"READY",net_notready:"NOT READY",net_start:"START",net_need2:"At least two devices are needed.",net_wait_ready:"Waiting for everyone to be ready.",net_wait_host:"The host starts the game.",net_leave:"LEAVE",
  net_stub:"Connection works: {0} devices connected. The actual multiplayer game (synchronisation) comes in the next step.",
- pause_title:"Paused",b_continue:"RESUME",b_newgame:"NEW GAME",
+ net_ai:"AI players",net_lvl:"AI level",net_toomany:"Too many devices (phones: max 4).",net_waiting:"Waiting for the other players…",net_ai_took:"AI takes over",net_pause_note:"The game goes on for the others. If you leave, an AI takes over your tank.",
+pause_title:"Paused",b_continue:"RESUME",b_newgame:"NEW GAME",
  re_win:"Round {0}/{1}: {2} won",re_tie:"Round {0}/{1}: draw",
  re_info:"Everyone gets a {0} bonus, trailing players get more (up to {1}) and the winner gets {2}. You earn {3} for each enemy destroyed, plus money for damage.",
  b_podium:"TO THE PODIUM",b_shop_next:"SHOP AND NEXT ROUND",
@@ -659,7 +662,7 @@ const LEADER_TR={
 
 /* ====== Pelitila ====== */
 const KILL_BONUS=4000;
-let matchSeed=1,turnNo=0,teamMode=0,wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
+let idleTurns=0,uncap=false,matchSeed=1,turnNo=0,teamMode=0,wallMode=0,tanks=[],cur=0,wind=0,phase='menu',round=1,maxRounds=5,shake=0,time=0,turnDelay=0;
 let projs=[],rolls=[],burrows=[],fires=[],blasts=[],parts=[],texts=[],trails=[],pending=[];
 const cfg={slots:[0,3,-1,-1,-1,-1,-1,-1],rounds:5,walls:0,cam:1,names:['','','','','','','',''],mode:0,tslots:[[0,3,3],[3,3,3]],tnames:[['','',''],['','','']]};
 try{const s=JSON.parse(localStorage.getItem('tsota2')||'null');if(s&&s.slots&&s.slots.length>=4)Object.assign(cfg,s);}catch(e){}
@@ -667,11 +670,11 @@ while(cfg.slots.length<8)cfg.slots.push(-1);while(cfg.names.length<8)cfg.names.p
 function saveCfg(){try{localStorage.setItem('tsota2',JSON.stringify(cfg));}catch(e){}}
 
 function makeTank(i,lvl,name){
-  return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',team:-1,pers:null,leader:'',hitBy:null,shield:0,mag:0,shAge:null,magAge:null,
+  return {i,col:COLORS[i],lvl,name,x:0,y:0,hp:100,ang:60,pow:50,inv:{baby:1,parachute:0},sel:'baby',team:-1,dev:-1,pers:null,leader:'',hitBy:null,shield:0,mag:0,shAge:null,magAge:null,
     alive:true,wins:0,money:12000,fall:0,vy:0,acc:0,kills:0,mem:null,dHp:100,flash:0,last:null,lastImp:null,earn:{dmg:0,kills:0,nk:0,bonus:0}};
 }
 function tankPos(t){return {x:t.x,y:t.y-9};}
-function maxPow(t){return Math.max(10,Math.min(100,Math.ceil(t.hp)));}
+function maxPow(t){return uncap?100:Math.max(10,Math.min(100,Math.ceil(t.hp)));}
 function barrelTip(t){const a=t.ang*Math.PI/180,p=tankPos(t);return {x:p.x+Math.cos(a)*17,y:p.y-Math.sin(a)*17};}
 
 /* ====== Hiukkaset ====== */
@@ -755,6 +758,7 @@ function stepAir(t,dt){
 const sameTeam=(a,b)=>a&&b&&a.team>=0&&a.team===b.team;
 function applyDamage(t,amt,src,quiet){
   if(!t.alive||amt<=0)return 0;
+  idleTurns=0;uncap=false; // osuma nollaa pattitilanteen laskurin
   if(t.mag>0&&src){t.mag=0;t.magAge=null;floatText(t.x,t.y-34,T('fx_magnet_down'),'#e599f7');}
   if(t.shield>0){const a=Math.min(t.shield,amt);t.shield-=a;amt-=a;t.flash=0.25;
     if(t.shield<=0){floatText(t.x,t.y-26,T('fx_shield_down'),'#7fe3f0');}}
@@ -866,7 +870,7 @@ function moveProj(p,dt){
 
 /* ====== Fysiikka ====== */
 function stepWorld(dt){
-  time+=dt;
+  time+=dt;wxSim(dt);
   for(let i=projs.length-1;i>=0;i--){
     const p=projs[i];p.t+=dt;
     const ox=p.x,oy=p.y;
@@ -1339,7 +1343,7 @@ let wx='sun',wxP=[],wxFlash=0,wxBolt=null,wxBoltAt=null,wxFar=0;
 function wxWindK(){return wx==='sun'?.6:wx==='thunder'?1.5:1.3;}
 function wxWindMax(){return wx==='sun'?45:wx==='thunder'?90:75;}
 function setWeather(){
-  const c=(cfg.weather|0);
+  const c=NET.active?NET.weather:(cfg.weather|0);
   wx=c>0?WX_IDS[c-1]:spick(WX_IDS);
   wxP=[];wxFlash=0;wxBolt=null;wxBoltAt=null;wxFar=rnd(3,8);
   const n=Math.round((wx==='thunder'?170:wx==='snow'?120:0)*(W*H)/(800*450)*.8);
@@ -1369,12 +1373,14 @@ function wxStrike(){
   explode(x,y-4,26,38,null,'#cfe3ff');
   sndThunder();
 }
+function wxSim(dt){ // simulaatioaika: salamaisku ammuksen lennon aikana (sama kaikilla laitteilla)
+  if(wx==='thunder'&&phase==='fly'&&wxBoltAt!=null){wxBoltAt-=dt;if(wxBoltAt<=0){wxBoltAt=null;wxStrike();}}
+}
 function wxAnim(dt){ // joka kuva
   if(wxFlash>0)wxFlash=Math.max(0,wxFlash-dt*2.4);
   if(wxBolt){wxBolt.life-=dt;if(wxBolt.life<=0)wxBolt=null;}
   if(wx==='thunder'&&!paused&&tanks.length&&phase!=='menu'){
     wxFar-=dt;if(wxFar<0){wxFar=rnd(5,11);if(wxFlash<.1){wxFlash=.45;setTimeout(sndThunder,rint(250,700));}}
-    if(phase==='fly'&&wxBoltAt!=null){wxBoltAt-=dt;if(wxBoltAt<=0){wxBoltAt=null;wxStrike();}}
   }
   const sp=wx==='thunder'?1:.35;
   for(const p of wxP){
@@ -1387,14 +1393,13 @@ function wxAnim(dt){ // joka kuva
 function drawWeather(){
   if(phase==='menu'&&!tanks.length)return;
   if(wx==='sun'){
-    const sx=W*.88,sy=H*.3;
+    if(th&&th.stars)return; // yöteemassa ei aurinkoa
+    const sx=th.sun[0]*W,sy=th.sun[1]*H; // sama paikka kuin taustan auringolla
     ctx.save();ctx.globalCompositeOperation='lighter';
-    const g=ctx.createRadialGradient(sx,sy,4,sx,sy,H*.55);g.addColorStop(0,'rgba(255,220,120,.32)');g.addColorStop(1,'rgba(255,200,100,0)');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    ctx.restore();
-    ctx.fillStyle='#fff3b0';ctx.beginPath();ctx.arc(sx,sy,15,0,6.283);ctx.fill();
-    ctx.strokeStyle='rgba(255,236,150,.55)';ctx.lineWidth=2;
-    for(let i=0;i<12;i++){const a=i*Math.PI/6+time*.15;ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*21,sy+Math.sin(a)*21);ctx.lineTo(sx+Math.cos(a)*(i%2?28:33),sy+Math.sin(a)*(i%2?28:33));ctx.stroke();}
+    const g=ctx.createRadialGradient(sx,sy,4,sx,sy,H*.6);g.addColorStop(0,'rgba(255,220,120,.3)');g.addColorStop(1,'rgba(255,200,100,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.restore();
+    ctx.strokeStyle='rgba(255,236,150,.5)';ctx.lineWidth=2;
+    for(let i=0;i<12;i++){const a=i*Math.PI/6+time*.15;ctx.beginPath();ctx.moveTo(sx+Math.cos(a)*20,sy+Math.sin(a)*20);ctx.lineTo(sx+Math.cos(a)*(i%2?28:34),sy+Math.sin(a)*(i%2?28:34));ctx.stroke();}
   }else if(wx==='thunder'){
     ctx.fillStyle='rgba(8,12,30,.36)';ctx.fillRect(0,0,W,H);
     ctx.strokeStyle='rgba(190,210,255,.5)';ctx.lineWidth=1;ctx.beginPath();
@@ -1562,7 +1567,7 @@ function aiPlan(t){
 }
 function aiUpdate(dt){
   const t=tanks[cur];
-  if(!ai||!t||!t.alive||t.lvl===0)return;
+  if(!ai||!t||!t.alive||t.lvl===0||!netAuth())return;
   const lv=Object.assign({},LV[t.lvl]);lv.think*=pm(t).th;
   ai.tm+=dt;
   if(ai.stage==='think'){
@@ -1580,7 +1585,7 @@ function aiUpdate(dt){
       const g=ai.goal;
       t.lastAim=g.target?{tid:g.target.i,tx:g.target.x}:null;
       ai=null;
-      doFire(t);
+      act(t);
     }
   }
 }
@@ -1766,20 +1771,21 @@ function showFinale(){
   for(let i=0;i<4;i++)setTimeout(()=>{if(phase==='finale')launchFw(nextFwType());},i*250);
   showOv('<div class="card"><h1>'+T('fin_title')+'</h1><h2>'+T('fin_winner')+': '+finalWinnerHtml()+'</h2>'+tableHtml(false)+
     '<button class="go" id="again">'+T('b_newgame')+'</button></div>','finale');
-  $('again').onclick=()=>{audio();backdrop();showSetup();};
+  $('again').onclick=()=>{audio();if(NET.active)netClose();backdrop();showSetup();};
 }
 
 /* ====== Moninpeli: yhteys ja aula (PeerJS / WebRTC) ====== */
 const PEER_SRC='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const CODE_CH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',NET_MAX=8;
-const NET={peer:null,role:null,code:'',conns:[],host:null,players:[],me:0,timer:null,gen:0};
+const NET={peer:null,role:null,code:'',conns:[],host:null,players:[],me:0,timer:null,gen:0,active:false,q:[],W:0,H:0,weather:0,cfg:{ai:0,lvl:3,rounds:5,walls:0,weather:0,mode:0},done:null,seen:0,votes:null,aimT:0,aimKey:'',ids:[],mig:null,gone:new Set(),early:[],shopSent:false,resumeT:null};
+const netAuth=()=>!NET.active||NET.role==='host';
 function netCode(){let s='';for(let i=0;i<4;i++)s+=CODE_CH[Math.floor(Math.random()*CODE_CH.length)];return s;}
 function netLoad(ok,fail){
   if(window.Peer)return ok();
   const s=document.createElement('script');s.src=PEER_SRC;s.onload=()=>window.Peer?ok():fail();s.onerror=fail;document.head.appendChild(s);
 }
 function netClose(){
-  NET.gen++;clearInterval(NET.timer);NET.timer=null;
+  NET.gen++;NET.active=false;NET.q=[];NET.done=null;NET.mig=null;NET.gone=new Set();NET.early=[];NET.ids=[];clearTimeout(NET.resumeT);NET.W=0;NET.H=0;clearInterval(NET.timer);NET.timer=null;
   try{NET.peer&&NET.peer.destroy();}catch(e){}
   NET.peer=null;NET.role=null;NET.conns=[];NET.host=null;NET.players=[];NET.code='';
 }
@@ -1790,25 +1796,40 @@ function netUniq(name,except){
 }
 function netSend(c,m){try{c.open&&c.send(m);}catch(e){}}
 function netBroadcast(){
-  NET.players.forEach((p,i)=>{if(p.conn)netSend(p.conn,{t:'lobby',players:NET.players.map(q=>({name:q.name,ready:q.ready})),you:i});});
+  NET.players.forEach((p,i)=>{if(p.conn)netSend(p.conn,{t:'lobby',players:NET.players.map(q=>({name:q.name,ready:q.ready,team:q.team|0})),you:i});});
   renderLobby();
+}
+function netGuestWire(conn,fail){
+  conn.on('data',m=>{
+    if(!m||typeof m!=='object')return;NET.seen=Date.now();
+    if(m.t==='lobby'){NET.players=m.players;NET.me=m.you;renderLobby();}
+    else if(m.t==='full'&&fail)fail(T('net_full'));
+    else if(m.t==='start'&&m.g)netBegin(m.g);
+    else if(NET.active&&['act','end','go','ai','aim','resync','drawres'].includes(m.t))NET.q.push(m);
+  });
+}
+function netConnLost(){
+  if(NET.role!=='guest'||NET.mig)return;
+  if(NET.active)netMigrate();
+  else{netClose();netMenu(T('net_host_left'));}
 }
 function netBeat(){ // sydämenlyönti: katkenneet yhteydet pudotetaan 14 s kuluttua
   const now=Date.now();
   if(NET.role==='host'){
-    for(const p of NET.players.slice(1)){netSend(p.conn,{t:'ping'});if(now-p.seen>14000)netDrop(p.conn);}
+    NET.players.forEach((p,k)=>{if(k===NET.me||p.gone||!p.conn)return;netSend(p.conn,{t:'ping'});if(now-p.seen>14000)netDrop(p.conn);});
   }else if(NET.host){
     netSend(NET.host,{t:'ping'});
-    if(now-NET.seen>14000)netHostGone();
+    if(now-NET.seen>14000)netConnLost();
   }
 }
 function netDrop(conn){
   const i=NET.players.findIndex(p=>p.conn===conn);
+  if(i>0&&NET.active){netDropInGame(i,conn);return;}
   if(i>0){NET.players.splice(i,1);try{conn.close();}catch(e){}netBroadcast();}
 }
 function netHostGone(){
   if(NET.role!=='guest')return;
-  netClose();netMenu(T('net_host_left'));
+  const was=NET.active;netClose();if(was)backdrop();netMenu(T('net_host_left'));
 }
 function netHostRoom(attempt){
   const gen=++NET.gen;
@@ -1818,7 +1839,7 @@ function netHostRoom(attempt){
     NET.peer=peer;NET.role='host';NET.code=code;
     peer.on('open',()=>{
       if(gen!==NET.gen)return;
-      NET.players=[{name:netName()||T('ph_player',1),ready:true,conn:null,seen:0}];NET.me=0;
+      NET.players=[{name:netName()||T('ph_player',1),ready:true,conn:null,seen:0,desk:isDesktop(),gone:false,pid:peer.id,team:0}];NET.me=0;
       NET.timer=setInterval(netBeat,4000);renderLobby();
     });
     peer.on('error',e=>{
@@ -1835,11 +1856,13 @@ function netHostRoom(attempt){
   },()=>{netClose();netMenu(T('net_load_err'));});
 }
 function netHostMsg(conn,m){
-  if(!m||typeof m!=='object')return;
+  if(!m||typeof m!=='object'||NET.role!=='host')return;
+  if(m.t==='rejoin'){const q=NET.players[+m.dev];if(q&&!q.gone&&NET.active){q.conn=conn;q.seen=Date.now();netCheckResume();}return;}
   let p=NET.players.find(q=>q.conn===conn);
   if(m.t==='hello'&&!p){
     if(NET.players.length>=NET_MAX){netSend(conn,{t:'full'});setTimeout(()=>{try{conn.close();}catch(e){}},300);return;}
-    p={name:'',ready:false,conn,seen:Date.now()};
+    p={name:'',ready:false,conn,seen:Date.now(),desk:!!m.desk,gone:false,pid:String(m.pid||''),team:0};
+    p.team=NET.players.filter(q=>q.team===0).length<=NET.players.filter(q=>q.team===1).length?0:1;
     p.name=netUniq(cleanName(m.name)||T('ph_player',NET.players.length+1),p);
     NET.players.push(p);netBroadcast();return;
   }
@@ -1847,6 +1870,7 @@ function netHostMsg(conn,m){
   p.seen=Date.now();
   if(m.t==='name'){p.name=netUniq(cleanName(m.name)||p.name,p);netBroadcast();}
   else if(m.t==='ready'){p.ready=!!m.v;netBroadcast();}
+  else if(NET.active)netHostGameMsg(p,m);
 }
 function netJoin(code){
   code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
@@ -1859,19 +1883,22 @@ function netJoin(code){
     const peer=new Peer(window.PEER_OPTS||{});NET.peer=peer;NET.role='guest';NET.code=code;
     const fail=msg=>{if(gen!==NET.gen)return;netClose();netMenu(msg);};
     const tmo=setTimeout(()=>fail(T('net_nohost')),12000);
-    peer.on('error',e=>{clearTimeout(tmo);fail(e.type==='peer-unavailable'?T('net_nohost'):T('net_err'));});
+    peer.on('error',e=>{
+      clearTimeout(tmo);
+      if(NET.active){if(NET.mig&&e.type==='peer-unavailable'&&NET.mig.fail)NET.mig.fail();return;}
+      fail(e.type==='peer-unavailable'?T('net_nohost'):T('net_err'));
+    });
+    peer.on('connection',conn=>{ // muut vieraat voivat yhdistää tänne, jos isäntä katoaa ja minusta tulee isäntä
+      conn.on('data',m=>{if(NET.role==='host')netHostMsg(conn,m);else if(m&&m.t==='rejoin')NET.early.push({conn,m});});
+      conn.on('close',()=>netDrop(conn));conn.on('error',()=>netDrop(conn));
+    });
     peer.on('open',()=>{
       if(gen!==NET.gen)return;
       const conn=peer.connect('tsota2-'+code,{reliable:true});
       NET.host=conn;
-      conn.on('open',()=>{clearTimeout(tmo);NET.seen=Date.now();NET.timer=setInterval(netBeat,4000);netSend(conn,{t:'hello',name:netName()});});
-      conn.on('data',m=>{
-        if(!m||typeof m!=='object')return;NET.seen=Date.now();
-        if(m.t==='lobby'){NET.players=m.players;NET.me=m.you;renderLobby();}
-        else if(m.t==='full')fail(T('net_full'));
-        else if(m.t==='start')netStartStub();
-      });
-      conn.on('close',()=>{clearTimeout(tmo);if(NET.role==='guest'&&NET.players.length)netHostGone();else fail(T('net_nohost'));});
+      conn.on('open',()=>{clearTimeout(tmo);NET.seen=Date.now();NET.timer=setInterval(netBeat,4000);netSend(conn,{t:'hello',name:netName(),desk:isDesktop(),pid:peer.id});});
+      netGuestWire(conn,fail);
+      conn.on('close',()=>{clearTimeout(tmo);if(conn!==NET.host)return;if(NET.role==='guest'&&NET.players.length)netConnLost();else fail(T('net_nohost'));});
     });
   },()=>{if(gen===NET.gen){netClose();netMenu(T('net_load_err'));}});
 }
@@ -1888,33 +1915,279 @@ function netMenu(msg){
   $('nback').onclick=()=>showSetup();
 }
 function renderLobby(){
-  if(!NET.role||!NET.players.length)return;
-  const host=NET.role==='host',me=NET.me;
-  const rows=NET.players.map((p,i)=>'<div class="slot"><i style="background:'+COLORS[i%8]+'"></i><span style="flex:1">'+esc(p.name)+(i===0?' <small>('+T('net_host_tag')+')</small>':'')+(i===me?' <small>('+T('net_you')+')</small>':'')+'</span><b>'+(p.ready?'✓':'…')+'</b></div>').join('');
-  const allReady=NET.players.every(p=>p.ready),can=NET.players.length>=2&&allReady;
+  if(!NET.role||!NET.players.length||NET.active)return;
+  const host=NET.role==='host',me=NET.me,C=NET.cfg,P=NET.players;
+  const allDesk=P.every(p=>p.desk!==false),maxT=allDesk?8:4;
+  const modes=[0,1,2,3].filter(m=>m===0||2*m<=maxT);
+  if(!modes.includes(C.mode))C.mode=0;
+  const N=C.mode;
+  C.ai=clamp(C.ai,0,Math.max(0,maxT-P.length));
+  const teamCnt=[P.filter(p=>p.team!==1).length,P.filter(p=>p.team===1).length];
+  const teamOk=!N||(teamCnt[0]<=N&&teamCnt[1]<=N);
+  const allReady=P.every(p=>p.ready);
+  const can=P.length>=2&&allReady&&teamOk&&(N?true:P.length<=maxT);
+  const op=(v,c,t)=>'<option value="'+v+'"'+(v===c?' selected':'')+'>'+t+'</option>';
+  const sel=(id,lab,opts)=>'<div class="slot"><i style="background:var(--accent)"></i><span>'+lab+'</span><select id="'+id+'">'+opts+'</select></div>';
+  const rows=P.map((p,i)=>'<div class="slot"><i style="background:'+COLORS[i%8]+'"></i><span style="flex:1">'+esc(p.name)+(i===0?' <small>('+T('net_host_tag')+')</small>':'')+(i===me?' <small>('+T('net_you')+')</small>':'')+
+    (N?'<br>'+(host?'<select class="tsel" data-k="'+i+'">'+op(0,p.team|0,'▲ '+T('team1'))+op(1,p.team|0,'■ '+T('team2'))+'</select>':teamName(p.team|0)):'')+
+    '</span><b>'+(p.ready?'✓':'…')+'</b></div>').join('');
+  let hostCfg='';
+  if(host){
+    hostCfg=sel('nmode',T('slot_mode'),modes.map(m=>op(m,N,m?m+' vs '+m:T('mode_ffa'))).join(''));
+    if(!N)hostCfg+=sel('nai',T('net_ai'),Array.from({length:Math.max(0,maxT-P.length)+1},(_,k)=>op(k,C.ai,k)).join(''));
+    if(N||C.ai)hostCfg+=sel('nlv',T('net_lvl'),[1,2,3,4,5].map(k=>op(k,C.lvl,rankName(k))).join(''));
+    hostCfg+=sel('nrd',T('slot_rounds'),[3,5,10].map(k=>op(k,C.rounds,k)).join(''))+sel('nwl',T('slot_walls'),op(0,C.walls,T('wall0'))+op(1,C.walls,T('wall1'))+op(2,C.walls,T('wall2')))+
+      sel('nwx',T('slot_weather'),op(0,C.weather,T('wx0'))+op(1,C.weather,'☀ '+T('wx1'))+op(2,C.weather,'⛈ '+T('wx2'))+op(3,C.weather,'❄ '+T('wx3')));
+  }
   showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_code_is')+'</p><div class="hsname" style="color:var(--accent);letter-spacing:.25em" id="roomcode">'+esc(NET.code)+'</div>'+
-    '<div class="teamhead">'+T('net_players',NET.players.length,NET_MAX)+'</div>'+rows+
-    '<div class="slot"><i></i><span>'+T('slot_name')+'</span><input type="text" id="nname" maxlength="14" autocomplete="off" style="font-size:16px" value="'+esc(NET.players[me].name)+'"></div>'+
-    (host?'<button class="go" id="nstart"'+(can?'':' disabled style="opacity:.45"')+'>'+T('net_start')+'</button><p>'+T(NET.players.length<2?'net_need2':'net_wait_ready')+'</p>'
-         :'<button class="go" id="nready">'+T(NET.players[me].ready?'net_notready':'net_ready')+'</button><p>'+T('net_wait_host')+'</p>')+
+    '<div class="teamhead">'+T('net_players',P.length,NET_MAX)+'</div>'+rows+
+    hostCfg+'<div class="slot"><i></i><span>'+T('slot_name')+'</span><input type="text" id="nname" maxlength="14" autocomplete="off" style="font-size:16px" value="'+esc(P[me].name)+'"></div>'+
+    (host?'<button class="go" id="nstart"'+(can?'':' disabled style="opacity:.45"')+'>'+T('net_start')+'</button><p>'+T(!teamOk?'net_team_over':P.length>maxT&&!N?'net_toomany':P.length<2?'net_need2':!allReady?'net_wait_ready':N?'net_ai_fill':'net_ready_go')+'</p>'
+         :'<button class="go" id="nready">'+T(P[me].ready?'net_notready':'net_ready')+'</button><p>'+T('net_wait_host')+'</p>')+
     '<button class="go alt" id="nleave">'+T('net_leave')+'</button></div>');
   const nm=$('nname');
-  nm.onchange=()=>{const v=cleanName(nm.value);if(!v)return;if(host){NET.players[0].name=netUniq(v,NET.players[0]);netBroadcast();}else netSend(NET.host,{t:'name',name:v});};
-  if(host)$('nstart').onclick=()=>{if(!can)return;NET.players.slice(1).forEach(p=>netSend(p.conn,{t:'start'}));netStartStub();};
-  else $('nready').onclick=()=>netSend(NET.host,{t:'ready',v:!NET.players[me].ready});
+  nm.onchange=()=>{const v=cleanName(nm.value);if(!v)return;if(host){P[0].name=netUniq(v,P[0]);netBroadcast();}else netSend(NET.host,{t:'name',name:v});};
+  if(host){
+    $('nstart').onclick=()=>{if(can)netStartGame();};
+    const bind=(id,k)=>{const e=$(id);if(e)e.onchange=()=>{C[k]=+e.value;renderLobby();};};
+    bind('nmode','mode');bind('nai','ai');bind('nlv','lvl');bind('nrd','rounds');bind('nwl','walls');bind('nwx','weather');
+    document.querySelectorAll('.tsel').forEach(e=>{e.onchange=()=>{P[+e.dataset.k].team=+e.value;netBroadcast();};});
+  }else $('nready').onclick=()=>netSend(NET.host,{t:'ready',v:!P[me].ready});
   $('nleave').onclick=()=>{netClose();netMenu();};
 }
-/* Vaihe 3 toteuttaa varsinaisen pelin synkronoinnin; toistaiseksi vain vahvistetaan, että yhteys toimii */
-function netStartStub(){
-  showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_stub',NET.players.length)+'</p><button class="go alt" id="nback2">'+T('net_leave')+'</button></div>');
-  $('nback2').onclick=()=>{netClose();showSetup();};
+/* ====== Moninpeli: pelin synkronointi (isäntä on auktoriteetti) ====== */
+function netStartGame(){
+  const devs=NET.players,C=NET.cfg,allDesk=devs.every(p=>p.desk),N=C.mode|0;
+  let list=[];
+  if(N){
+    const byTeam=[0,1].map(k=>devs.map((p,d)=>({p,d})).filter(o=>(o.p.team===1?1:0)===k));
+    const nAI=byTeam.reduce((a,x)=>a+Math.max(0,N-x.length),0);
+    const leaders=drawLeaders(nAI,devs.map(p=>p.name));let li=0;
+    const per=[[],[]];
+    [0,1].forEach(k=>{let slot=0;
+      byTeam[k].forEach(o=>per[k].push({i:k*N+slot++,name:o.p.name,lvl:0,dev:o.d,ld:'',team:k}));
+      while(slot<N){const L=leaders[li++];per[k].push({i:k*N+slot++,name:rankName(C.lvl)+' '+L,lvl:C.lvl,dev:-1,ld:leaderKey(L),team:k});}});
+    for(let k=0;k<N;k++){list.push(per[0][k]);list.push(per[1][k]);}
+  }else{
+    const leaders=drawLeaders(C.ai,devs.map(p=>p.name));
+    devs.forEach((p,k)=>list.push({i:k,name:p.name,lvl:0,dev:k,ld:'',team:-1}));
+    for(let a=0;a<C.ai;a++)list.push({i:devs.length+a,name:rankName(C.lvl)+' '+leaders[a],lvl:C.lvl,dev:-1,ld:leaderKey(leaders[a]),team:-1});
+  }
+  const g={seed:(Math.random()*4294967296)>>>0,W:allDesk?W:800,H:allDesk?H:450,rounds:C.rounds,walls:C.walls,weather:C.weather,mode:N,tanks:list,ids:devs.map(p=>p.pid||'')};
+  NET.players.forEach((p,k)=>{if(k!==NET.me&&p.conn)netSend(p.conn,{t:'start',g});});
+  netBegin(g);
+}
+function netBegin(g){
+  NET.active=true;NET.q=[];NET.W=g.W;NET.H=g.H;NET.weather=g.weather|0;
+  NET.ids=g.ids||[];
+  tanks=g.tanks.map(o=>{const t=makeTank(o.i,o.lvl,o.name);t.dev=o.dev;t.team=o.team==null?-1:o.team;if(o.lvl>0){t.leader=o.ld;t.pers=persOf(o.ld);}return t;});
+  teamMode=g.mode|0;matchSeed=g.seed;maxRounds=g.rounds;round=1;wallMode=g.walls|0;speed=1;$('btnSpd').textContent='×1';
+  paused=false;hideOv();beginShops();
+}
+function netEachGuest(f){NET.players.forEach((p,k)=>{if(k!==NET.me&&p.conn&&!p.gone)f(p);});}
+function netAll(m){netEachGuest(p=>netSend(p.conn,m));}
+function act(t){
+  if(!NET.active){doFire(t);return;}
+  const m={t:'act',r:round,n:turnNo,c:tanks.indexOf(t),ang:t.ang,pow:t.pow,sel:t.sel};
+  if(NET.role==='host'){netAll(m);netApplyAct(m);}else netSend(NET.host,m);
+}
+function netApplyAct(m){
+  const t=tanks[m.c];if(!t)return;
+  t.ang=clamp(+m.ang||0,0,180);t.pow=clamp(+m.pow||5,5,100);if(WID[m.sel])t.sel=m.sel;
+  doFire(t);
+}
+function netHostGameMsg(p,m){
+  const k=NET.players.indexOf(p);
+  if(m.t==='act'||m.t==='aim'){
+    const t=tanks[m.c];
+    if(!t||t.dev!==k||m.r!==round||m.n!==turnNo||m.c!==cur||phase!=='aim')return;
+    if(m.t==='act'){netAll(m);netApplyAct(m);}
+    else{netEachGuest(q=>{if(q!==p)netSend(q.conn,m);});netApplyAim(m);}
+  }else if(m.t==='vote'){
+    if(phase!=='draw'||m.r!==round||m.n!==turnNo||!NET.votes)return;
+    NET.votes[k]=!!m.v;netCheckVotes();
+  }else if(m.t==='shop'){
+    const t=tanks.find(x=>x.dev===k);
+    if(!t||!NET.done||m.r!==round||!m.inv||typeof m.inv!=='object')return;
+    t.inv=m.inv;if(isFinite(m.money))t.money=m.money;
+    NET.done.add(k);netCheckGo();
+  }
+}
+function netApplyAim(m){
+  const t=tanks[m.c];if(!t||m.r!==round||m.n!==turnNo||m.c!==cur||phase!=='aim'||t.dev===NET.me)return;
+  t.ang=clamp(+m.ang||0,0,180);t.pow=clamp(+m.pow||5,5,100);if(WID[m.sel]&&(WID[m.sel].inf||(t.inv[m.sel]||0)>0))t.sel=m.sel;lastUI='';
+}
+function netSnap(){
+  return {g:Array.from(ground),w:wind,it:idleTurns,uc:uncap,t:tanks.map(t=>({x:t.x,y:t.y,hp:t.hp,al:t.alive?1:0,mo:t.money,sh:t.shield,sa:t.shAge,mg:t.mag,ma:t.magAge,wi:t.wins,ki:t.kills,iv:t.inv,ea:t.earn}))};
+}
+function netApplySnap(s){
+  if(!s)return;
+  for(let i=0;i<W&&i<s.g.length;i++)ground[i]=s.g[i];
+  mask.fill(0);for(let x=0;x<W;x++){const g=clamp(Math.round(ground[x]),1,H-5);for(let y=g;y<H;y++)mask[y*W+x]=1;}
+  terrDirty=true;
+  wind=s.w;if(s.it!=null){idleTurns=s.it;uncap=!!s.uc;lastUI='';}
+  s.t.forEach((o,i)=>{const t=tanks[i];if(!t)return;t.x=o.x;t.y=o.y;t.hp=o.hp;t.dHp=o.hp;t.alive=!!o.al;t.money=o.mo;t.shield=o.sh;t.shAge=o.sa;t.mag=o.mg;t.magAge=o.ma;t.wins=o.wi;t.kills=o.ki;t.inv=o.iv;t.earn=o.ea;});
+}
+function turnDone(){ // isäntä päättää vuoron lopun ja lähettää tarkan tilan; vieraat odottavat
+  if(NET.active&&NET.role==='guest')return;
+  if(NET.active)netAll({t:'end',r:round,n:turnNo,s:netSnap()});
+  endTurn();
+}
+function netPump(){
+  while(NET.q.length){
+    const m=NET.q[0];
+    if(m.t==='act'){if(!(m.r===round&&m.n===turnNo&&m.c===cur&&phase==='aim'))break;NET.q.shift();netApplyAct(m);}
+    else if(m.t==='end'){if(!(m.r===round&&m.n===turnNo&&phase==='fly'&&!busy()))break;NET.q.shift();netApplySnap(m.s);endTurn();}
+    else if(m.t==='go'){if(phase!=='shop')break;NET.q.shift();netApplyGo(m);}
+    else if(m.t==='ai'){NET.q.shift();netMakeAI(m.i);}
+    else if(m.t==='drawres'){if(phase!=='draw')break;NET.q.shift();drawResolve(m.ok);}
+    else if(m.t==='resync'){NET.q.shift();netApplyResync(m);}
+    else if(m.t==='aim'){NET.q.shift();netApplyAim(m);}
+    else NET.q.shift();
+  }
+}
+function netTick(dt){
+  netPump();
+  const t=tanks[cur];
+  if(t&&isHuman()){ // välitä tähtäys muille ~6 kertaa sekunnissa
+    NET.aimT+=dt;
+    const key=[Math.round(t.ang),Math.round(t.pow),t.sel].join('|');
+    if(NET.aimT>.16&&key!==NET.aimKey){
+      NET.aimT=0;NET.aimKey=key;
+      const m={t:'aim',r:round,n:turnNo,c:cur,ang:t.ang,pow:t.pow,sel:t.sel};
+      if(NET.role==='host')netAll(m);else netSend(NET.host,m);
+    }
+  }
+}
+function netShop(){
+  const t=tanks.find(x=>x.dev===NET.me);
+  NET.done=new Set();NET.shopSent=false;NET.q=NET.q.filter(m=>m.t!=='go');
+  phase='shop';
+  if(!t){netShopDone();return;}
+  shopQ=[t];shopI=0;openShop();
+}
+function netShopDone(){
+  const t=tanks.find(x=>x.dev===NET.me);NET.shopSent=true;
+  showOv('<div class="card"><h2>'+T('net_title')+'</h2><p>'+T('net_waiting')+'</p><button class="go alt" id="nleave2">'+T('net_leave')+'</button></div>');
+  $('nleave2').onclick=()=>{netClose();backdrop();netMenu();};
+  if(NET.role==='host'){NET.done.add(NET.me);netCheckGo();}
+  else if(t)netSend(NET.host,{t:'shop',r:round,inv:t.inv,money:t.money});
+}
+function netCheckGo(){
+  if(!NET.active||NET.role!=='host'||!NET.done||phase!=='shop')return;
+  for(let k=0;k<NET.players.length;k++){const p=NET.players[k];if(k!==NET.me&&p.gone)continue;if(!NET.done.has(k))return;}
+  NET.done=null;
+  for(const t of tanks)if(t.lvl>0)aiBuy(t);
+  const m={t:'go',round,tanks:tanks.map((t,ix)=>({i:ix,mo:t.money,iv:t.inv,wi:t.wins,ki:t.kills}))};
+  netAll(m);netApplyGo(m);
+}
+function netApplyGo(m){
+  for(const o of m.tanks){const t=tanks[o.i];if(!t)continue;t.money=o.mo;t.inv=o.iv;t.wins=o.wi;t.kills=o.ki;}
+  round=m.round;startRound();
+}
+function netMakeAI(i){
+  const t=tanks[i];if(!t||t.lvl>0)return;
+  t.lvl=3;t.dev=-1;t.pers='tact';
+  if(NET.role==='host'&&cur===i&&phase==='aim'&&t.alive){aiStart(t);}
+}
+function netDropInGame(i,conn){
+  const p=NET.players[i];p.gone=true;try{conn.close();}catch(e){}
+  const t=tanks.find(x=>x.dev===i);
+  if(NET.votes)NET.votes[i]=true;
+  if(t){const ti=tanks.indexOf(t);netAll({t:'ai',i:ti});netMakeAI(ti);floatText(t.x,t.y-40,T('net_ai_took'),'#ffd27a');}
+  netCheckGo();
+}
+function netCheckVotes(){ // isäntä laskee tasapeliäänet: yksikin ei-ääni hylkää, kaikki kyllä hyväksyy
+  if(!NET.active||NET.role!=='host'||phase!=='draw'||!NET.votes)return;
+  const vs=[];
+  for(let k=0;k<NET.players.length;k++){const p=NET.players[k];if(k!==NET.me&&(p.gone||!p.conn))continue;vs.push(NET.votes[k]);}
+  if(vs.some(v=>v===false)||vs.every(v=>v===true)){
+    const ok=vs.every(v=>v===true);NET.votes=null;
+    netAll({t:'drawres',ok});drawResolve(ok);
+  }
+}
+function netPauseMenu(){
+  showOv('<div class="card"><h2>'+T('pause_title')+'</h2><p>'+T('net_pause_note')+'</p><button class="go" id="npres">'+T('b_continue')+'</button><button class="go alt" id="nquit">'+T('net_leave')+'</button></div>');
+  $('npres').onclick=()=>{hideOv();syncUI();};
+  $('nquit').onclick=()=>{netClose();backdrop();showSetup();};
+}
+
+/* ====== Isännän vaihto: pienin elossa oleva laite ottaa isännyyden ====== */
+function netLeaveMsg(msg){netClose();backdrop();netMenu(msg);}
+function netMigrate(){
+  NET.mig={cand:0,fail:null};NET.q=[];
+  try{NET.host&&NET.host.close();}catch(e){}
+  NET.host=null;NET.gone=new Set([0]);
+  const t0=tanks.find(x=>x.dev===0);if(t0)netMakeAI(tanks.indexOf(t0));
+  netMigNext();
+}
+function netMigNext(){
+  let c=NET.mig.cand+1;while(NET.gone.has(c))c++;
+  NET.mig.cand=c;
+  if(c>=NET.ids.length||!NET.ids[c]){netLeaveMsg(T('net_host_left'));return;}
+  if(c===NET.me){netBecomeHost();return;}
+  let done=false;
+  const next=()=>{if(done)return;done=true;clearTimeout(tmo);try{conn.close();}catch(e){}NET.gone.add(c);if(NET.mig)netMigNext();};
+  const conn=NET.peer.connect(NET.ids[c],{reliable:true});
+  const tmo=setTimeout(next,9000);
+  NET.mig.fail=next;
+  conn.on('open',()=>{
+    if(done)return;done=true;clearTimeout(tmo);
+    NET.host=conn;NET.seen=Date.now();NET.mig=null;
+    netSend(conn,{t:'rejoin',dev:NET.me});
+    netGuestWire(conn,null);
+    conn.on('close',()=>{if(conn===NET.host)netConnLost();});
+  });
+  conn.on('error',next);
+}
+function netBecomeHost(){
+  const old=NET.players;
+  NET.role='host';NET.mig=null;
+  NET.players=NET.ids.map((id,k)=>({name:(old[k]||{}).name||('P'+(k+1)),ready:true,conn:null,seen:Date.now(),desk:true,gone:k<NET.me||NET.gone.has(k),pid:id,team:(old[k]||{}).team|0}));
+  for(const e of NET.early.splice(0))netHostMsg(e.conn,e.m);
+  floatText(W/2,40,T('net_new_host'),'#ffd27a');
+  NET.resumeT=setTimeout(netResume,9000);
+  netCheckResume();
+}
+function netCheckResume(){
+  if(NET.role!=='host'||!NET.resumeT)return;
+  for(let k=0;k<NET.players.length;k++){const p=NET.players[k];if(k!==NET.me&&!p.gone&&!p.conn)return;}
+  netResume();
+}
+function netResume(){
+  clearTimeout(NET.resumeT);NET.resumeT=null;
+  NET.players.forEach((p,k)=>{ // ne, jotka eivät palanneet, siirtyvät tekoälylle
+    if(k===NET.me||p.gone||p.conn)return;
+    p.gone=true;const t=tanks.find(x=>x.dev===k);if(t)netMakeAI(tanks.indexOf(t));
+  });
+  const midTurn=phase==='aim'||phase==='fly'||phase==='draw';
+  const m={t:'resync',r:round,n:turnNo,c:cur,ph:midTurn?'turn':phase,s:netSnap(),wn:lastWinIdx,
+    ai:tanks.map((t,i)=>t.lvl>0&&t.dev===-1&&t.pers?i:-1).filter(i=>i>=0)};
+  netAll(m);netApplyResync(m);
+  if(phase==='shop'||m.ph==='shop'){NET.done=new Set();if(NET.shopSent)NET.done.add(NET.me);netCheckGo();}
+}
+function netApplyResync(m){
+  NET.q=[];
+  projs=[];rolls=[];burrows=[];fires=[];pending=[];
+  for(const t of tanks){t.dying=0;t.air=null;}
+  for(const i of (m.ai||[]))netMakeAI(i);
+  netApplySnap(m.s);
+  round=m.r;turnNo=m.n;cur=m.c;
+  if(m.ph==='turn'){ // keskeneräinen vuoro mitätöidään ja peli siirtyy seuraavaan
+    seedSim(mixSeed(matchSeed,round,turnNo));ai=null;wxBoltAt=null;
+    phase='fly';settle=0;hideOv();lastUI='';
+  }else if(m.ph==='shop'){
+    if(phase==='shop'&&NET.shopSent&&NET.role==='guest'){const t=tanks.find(x=>x.dev===NET.me);if(t)netSend(NET.host,{t:'shop',r:round,inv:t.inv,money:t.money});}
+  }else if(m.ph==='over'&&phase!=='over'&&phase!=='shop'&&phase!=='finale'){
+    phase='over';roundEndOverlay(m.wn>=0?tanks[m.wn]:null);
+  }
 }
 
 /* ====== Ase- ja käyttöliittymä ====== */
 const ov=$('ov'),elAng=$('ang'),elPow=$('pow'),elFire=$('fire');
 let paused=false,settle=0,shopQ=[],shopI=0,lastUI='';
 function invList(t){return WP.filter(w=>!w.hid&&w.k!=='chute'&&(w.inf||(t.inv[w.id]||0)>0));}
-function isHuman(){const t=tanks[cur];return !!t&&t.lvl===0&&t.alive&&phase==='aim'&&!paused&&ov.classList.contains('hidden');}
+function isHuman(){const t=tanks[cur];return !!t&&t.lvl===0&&(!NET.active||t.dev===NET.me)&&t.alive&&phase==='aim'&&!paused&&ov.classList.contains('hidden');}
 function syncUI(){
   const t=tanks[cur];if(!t)return;
   const list=invList(t);
@@ -1975,9 +2248,9 @@ elAng.addEventListener('input',()=>{const t=tanks[cur];if(isHuman()){t.ang=+elAn
 elPow.addEventListener('input',()=>{const t=tanks[cur];if(isHuman()){t.pow=Math.min(+elPow.value,maxPow(t));syncUI();}});
 $('wPrev').addEventListener('click',()=>cycleWeapon(-1));
 $('wNext').addEventListener('click',()=>cycleWeapon(1));
-elFire.addEventListener('click',()=>{audio();if(isHuman())doFire(tanks[cur]);});
+elFire.addEventListener('click',()=>{audio();if(isHuman())act(tanks[cur]);});
 $('btnSnd').addEventListener('click',()=>{muted=!muted;if(!muted)audio();$('btnSnd').classList.toggle('off',muted);});
-$('btnMenu').addEventListener('click',()=>{if(phase==='menu')return;paused=true;showPause();});
+$('btnMenu').addEventListener('click',()=>{if(phase==='menu')return;if(NET.active){netPauseMenu();return;}paused=true;showPause();});
 
 /* ====== Vetotähtäys ====== */
 function toWorld(e){
@@ -2017,7 +2290,7 @@ addEventListener('keydown',e=>{
   else if(k==='ArrowUp'){adj('pow',e.shiftKey?5:1);e.preventDefault();}
   else if(k==='ArrowDown'){adj('pow',e.shiftKey?-5:-1);e.preventDefault();}
   else if(k==='Tab'||k==='w'){cycleWeapon(1);e.preventDefault();}
-  else if(k===' '||k==='Enter'){audio();doFire(tanks[cur]);e.preventDefault();}
+  else if(k===' '||k==='Enter'){audio();act(tanks[cur]);e.preventDefault();}
 });
 
 /* ====== Pelikulku ====== */
@@ -2046,12 +2319,13 @@ function slotCount(){return isDesktop()?8:4;}
 function fitWorld(){
   const r=$('stage').getBoundingClientRect(),asp=r.width/Math.max(1,r.height);
   let h=450,w;
-  if(isDesktop()){h=clamp(Math.round(r.height/1.15),450,760);w=clamp(Math.round(h*asp),480,1500);}
+  if(NET.active&&NET.W){w=NET.W;h=NET.H;}
+  else if(isDesktop()){h=clamp(Math.round(r.height/1.15),450,760);w=clamp(Math.round(h*asp),480,1500);}
   else w=clamp(Math.round(450*asp),480,960);
   if(w!==W||h!==H||!bgCv){W=w;H=h;ground=new Float32Array(W);mask=new Uint8Array(W*H);bgCv=null;tCv=null;cv.width=W*S;cv.height=H*S;cam.x=W/2;cam.y=H/2;}
 }
 function startRound(){
-  prevCur=-1;turnNo=0;seedSim(mixSeed(matchSeed,round,0));
+  prevCur=-1;idleTurns=0;uncap=false;turnNo=0;seedSim(mixSeed(matchSeed,round,0));
   fitWorld();genTerrain();th=spick(THEMES);buildSky();
   projs=[];rolls=[];burrows=[];fires=[];blasts=[];parts=[];texts=[];trails=[];pending=[];shake=0;ai=null;
   for(const t of tanks){
@@ -2083,7 +2357,7 @@ function beginTurn(){
   phase='aim';settle=0;lastUI='';
   const t=tanks[cur];
   ageDefences(t);
-  if(t.lvl)aiStart(t);
+  if(t.lvl&&netAuth())aiStart(t);
   if(t.lvl===0&&hotSeat()&&prevCur!==cur){prevCur=cur;coverCard(t,'turn',()=>{hideOv();syncUI();});}
   else if(t.lvl===0)prevCur=cur;
   syncUI();
@@ -2091,10 +2365,38 @@ function beginTurn(){
 function endTurn(){
   const alive=tanks.filter(t=>t.alive);
   if(teamMode?new Set(alive.map(t=>t.team)).size<=1:alive.length<=1){roundEnd(alive[0]||null);return;}
+  idleTurns++; // pattitilanne: ei osumia yhteenkään tankkiin
+  const cyc=Math.floor(idleTurns/alive.length);
+  if(cyc>=3&&!uncap){uncap=true;lastUI='';floatText(W/2,H*.3,T('fx_uncap'),'#ffd27a');}
+  if(cyc>=6){drawProposal();return;}
+  nextTurn();
+}
+function nextTurn(){
   do{cur=(cur+1)%tanks.length;}while(!tanks[cur].alive);
   turnNo++;seedSim(mixSeed(matchSeed,round,turnNo));
   wind=Math.round(clamp(wind+srnd(-12,12)*wxWindK(),-wxWindMax(),wxWindMax()));
   beginTurn();
+}
+function drawProposal(){
+  phase='draw';NET.votes={};
+  if(!tanks.some(t=>t.lvl===0)){drawResolve(true);return;}
+  showDrawCard(false);
+}
+function showDrawCard(waiting){
+  showOv('<div class="card"><h2>'+T('draw_title')+'</h2><p>'+T('draw_text')+'</p>'+
+    (waiting?'<p>'+T('draw_wait')+'</p>':'<button class="go" id="dyes">'+T('draw_yes')+'</button><button class="go alt" id="dno">'+T('draw_no')+'</button>')+'</div>');
+  if(!waiting){$('dyes').onclick=()=>{audio();drawVote(true);};$('dno').onclick=()=>{audio();drawVote(false);};}
+}
+function drawVote(v){
+  if(!NET.active){drawResolve(v);return;}
+  showDrawCard(true);
+  if(NET.role==='host'){NET.votes[NET.me]=v;netCheckVotes();}
+  else netSend(NET.host,{t:'vote',v,r:round,n:turnNo});
+}
+function drawResolve(ok){
+  if(ok){hideOv();roundEnd(null);return;}
+  idleTurns=3*Math.max(1,tanks.filter(t=>t.alive).length);hideOv();
+  nextTurn();
 }
 function earnTotal(t){return t.earn.dmg+t.earn.kills+t.earn.bonus;}
 function earnDetail(t){
@@ -2115,6 +2417,7 @@ function tableHtml(withEarn){
     list.map(t=>'<tr class="main"><td>'+dot(t)+esc(t.name)+'</td><td>'+t.wins+' ★</td><td>'+money(t.money)+'</td><td class="earn">+'+money(earnTotal(t))+'</td></tr>'+
       '<tr class="sub"><td colspan="4">'+(earnDetail(t)||T('earn_none'))+'</td></tr>').join('')+'</table>';
 }
+let lastWinIdx=-1;
 function roundEnd(w){
   phase='over';
   const winners=w?(teamMode?tanks.filter(t=>t.team===w.team):[w]):[];
@@ -2125,13 +2428,16 @@ function roundEnd(w){
     t.money+=b;t.earn.bonus+=b;
   }
   const last=round>=maxRounds;
-  if(last)clearSave();else saveGame(round+1);
-  setTimeout(()=>{
-    showOv('<div class="card"><h2>'+(w?(teamMode?T('re_win',round,maxRounds,teamName(w.team)):T('re_win',round,maxRounds,esc(w.name))):T('re_tie',round,maxRounds))+'</h2>'+
-      '<p>'+T('re_info',money(3000),money(4500),money(6000),money(KILL_BONUS))+'</p>'+
-      tableHtml(true)+'<button class="go" id="nx">'+(last?T('b_podium'):T('b_shop_next'))+'</button></div>');
-    $('nx').onclick=()=>{audio();if(last)showFinale();else{round++;beginShops();}};
-  },1100);
+  if(last||NET.active)clearSave();else saveGame(round+1);
+  lastWinIdx=w?tanks.indexOf(w):-1;
+  setTimeout(()=>roundEndOverlay(w),1100);
+}
+function roundEndOverlay(w){
+  const last=round>=maxRounds;
+  showOv('<div class="card"><h2>'+(w?(teamMode?T('re_win',round,maxRounds,teamName(w.team)):T('re_win',round,maxRounds,esc(w.name))):T('re_tie',round,maxRounds))+'</h2>'+
+    '<p>'+T('re_info',money(3000),money(4500),money(6000),money(KILL_BONUS))+'</p>'+
+    tableHtml(true)+'<button class="go" id="nx">'+(last?T('b_podium'):T('b_shop_next'))+'</button></div>');
+  $('nx').onclick=()=>{audio();if(last)showFinale();else{round++;beginShops();}};
 }
 /* ====== Tallennus kierrosten välillä ====== */
 function saveGame(nextRound){
@@ -2147,6 +2453,7 @@ function resumeGame(sv){
   beginShops();
 }
 function beginShops(){
+  if(NET.active){netShop();return;}
   for(const t of tanks)if(t.lvl)aiBuy(t);
   shopQ=tanks.filter(t=>t.lvl===0);shopI=0;
   if(!shopQ.length){startRound();return;}
@@ -2177,7 +2484,7 @@ function statLine(w){
   return T('st_std',w.r,w.dmg);
 }
 /* Hot seat: laite kiertää ihmispelaajalta toiselle, suojaruutu piilottaa edellisen valinnat */
-function hotSeat(){return cfg.hot!==0&&tanks.filter(t=>t.lvl===0).length>=2;}
+function hotSeat(){return !NET.active&&cfg.hot!==0&&tanks.filter(t=>t.lvl===0).length>=2;}
 function coverCard(t,kind,go){
   showOv('<div class="card cover"><h2>'+T('hs_title')+'</h2><div class="hsname" style="color:'+t.col+'">'+'<i class="hsdot" style="background:'+t.col+'"></i><span>'+esc(t.name)+'</span></div>'+
     (t.team>=0?'<p>'+teamName(t.team)+'</p>':'')+'<p>'+T(kind==='shop'?'hs_shop':'hs_turn')+'</p><button class="go" id="hsok">'+T('hs_ready')+'</button></div>');
@@ -2210,7 +2517,7 @@ function openShop(keepScroll){
     const w=WID[el.dataset.id];
     if(t.money>=w.price&&(t.inv[w.id]||0)<99){t.money-=w.price;t.inv[w.id]=(t.inv[w.id]||0)+w.bundle;audio();openShop(true);}
   });
-  $('done').onclick=()=>{audio();if(shopI<shopQ.length-1){shopI++;shopStart();}else startRound();};
+  $('done').onclick=()=>{audio();if(shopI<shopQ.length-1){shopI++;shopStart();}else if(NET.active)netShopDone();else startRound();};
 }
 function setLang(c){
   LANG=c;try{localStorage.setItem('tsota2lang',c);}catch(e){}
@@ -2351,10 +2658,10 @@ function frame(ts){
     accT+=dt;let n=0;
     const run=phase!=='menu'&&phase!=='shop';
     while(accT>=1/120&&n++<70){if(run)stepWorld(1/120);accT-=1/120;}
-    updateCam(rdt);wxAnim(rdt);
+    updateCam(rdt);wxAnim(rdt);if(NET.active)netTick(rdt);
     if(phase==='aim'){if(ov.classList.contains('hidden'))aiUpdate(dt);}
     else if(phase==='fly'){
-      if(!busy()){settle+=dt;if(settle>.7)endTurn();}else settle=0;
+      if(!busy()){settle+=dt;if(settle>.7)turnDone();}else settle=0;
     }
     else if(phase==='finale')updateFinale(dt);
     for(const t of tanks)if(!t.alive&&Math.random()<dt*2)addPart({x:t.x+rnd(-4,4),y:surf(t.x)-8,vx:rnd(-4,4),vy:-rnd(15,35),life:1.2,max:1.2,s:3,col:'#2a2d33',t:'m'});
